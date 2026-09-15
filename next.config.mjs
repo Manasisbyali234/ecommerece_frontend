@@ -5,7 +5,7 @@ const nextConfig = {
     return [
       {
         source: "/backend-api/:path*",
-        destination: "http://127.0.0.1:5000/api/v1/:path*",
+        destination: "https://ecommerce-api.metromindz.com/api/v1/:path*",
       },
     ];
   },
