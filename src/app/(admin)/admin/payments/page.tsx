@@ -46,6 +46,11 @@ const providerIcons: Record<string, typeof CreditCard> = {
   cod: IndianRupee,
 };
 
+function mapGateway(gateway: Record<string, unknown>): ExtendedGateway {
+  const cfg = (gateway.config as Record<string, string>) || {};
+  return { id: String(gateway.id), name: String(gateway.name), provider: String(gateway.provider), enabled: Boolean(gateway.enabled), mode: gateway.mode === "live" ? "live" : "test", fees: String(gateway.fees || ""), transactions30d: 0, volume30d: 0, publishableKey: cfg.publishableKey || cfg.keyId || "", secretKey: cfg.keySecret || "", webhookSecret: cfg.webhookSecret || "", merchantId: cfg.merchantId || "" };
+}
+
 export default function PaymentsPage() {
   const [gateways, setGateways] = useState<ExtendedGateway[]>([]);
 
@@ -57,11 +62,6 @@ export default function PaymentsPage() {
     }
     setGateways(items.map(mapGateway));
   }).catch(() => toast.error("Unable to load payment gateways")); }, []);
-
-  function mapGateway(gateway: Record<string, unknown>): ExtendedGateway {
-    const cfg = (gateway.config as Record<string, string>) || {};
-    return { id: String(gateway.id), name: String(gateway.name), provider: String(gateway.provider), enabled: Boolean(gateway.enabled), mode: gateway.mode === "live" ? "live" : "test", fees: String(gateway.fees || ""), transactions30d: 0, volume30d: 0, publishableKey: cfg.publishableKey || cfg.keyId || "", secretKey: cfg.keySecret || "", webhookSecret: cfg.webhookSecret || "", merchantId: cfg.merchantId || "" };
-  }
 
   const [selectedGateway, setSelectedGateway] = useState<ExtendedGateway | null>(null);
   const [openModal, setOpenModal] = useState(false);
