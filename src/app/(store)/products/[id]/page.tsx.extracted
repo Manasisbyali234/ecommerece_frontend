@@ -1,0 +1,1540 @@
+1: "use client";
+2: 
+3: import React, { useState, use } from "react";
+4: import Link from "next/link";
+5: import { notFound, useParams } from "next/navigation";
+6: import {
+7:   Star,
+8:   ShoppingBag,
+9:   Heart,
+10:   Share2,
+11:   ShieldCheck,
+12:   Truck,
+13:   RotateCcw,
+14:   Check,
+15:   Plus,
+16:   Minus,
+17:   Sparkles,
+18:   Award,
+19:   ChevronRight,
+20:   ThumbsUp,
+21:   Package,
+22:   Zap,
+23:   Lock,
+24: } from "lucide-react";
+25: import { Button } from "@/components/ui/button";
+26: import { Badge } from "@/components/ui/badge";
+27: import { Card, CardContent } from "@/components/ui/card";
+28: import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+29: import {
+30:   Accordion,
+31:   AccordionContent,
+32:   AccordionItem,
+33:   AccordionTrigger,
+34: } from "@/components/ui/accordion";
+35: import { useCart } from "@/lib/cart-context";
+36:   Video,
+37:   MessageSquare,
+38:   Upload,
+39:   User,
+40:   Image as ImageIconLucide,
+41:   Filter,
+42:   SlidersHorizontal,
+43:   Heart,
+44: } from "lucide-react";
+45: import { toast } from "sonner";
+46: import { products, formatCurrency, defaultAboutSections, defaultAdditionalInfo, type Product, type ProductReview, type AboutProductSection, type AdditionalInfoSection } from "@/lib/mock-data";
+47: import { useCart } from "@/lib/cart-context";
+48: import { useWishlist } from "@/lib/wishlist-context";
+49: import { Button } from "@/components/ui/button";
+50: import { Input } from "@/components/ui/input";
+51: import { Badge } from "@/components/ui/badge";
+52: import { Card, CardContent } from "@/components/ui/card";
+53: import { Separator } from "@/components/ui/separator";
+54: import {
+55:   Accordion,
+56:   AccordionItem,
+57:   AccordionTrigger,
+58:   AccordionContent,
+59: } from "@/components/ui/accordion";
+60: import {
+61:   Dialog,
+62:   DialogContent,
+63:   DialogHeader,
+64:   DialogTitle,
+65: } from "@/components/ui/dialog";
+66: 
+67: const sampleCustomerReviews: ProductReview[] = [
+68:   {
+69:     id: "rev-1",
+70:     author: "Rohan Sharma",
+71:     avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+72:     verifiedBuyer: true,
+73:     rating: 5,
+74:     date: "July 28, 2026",
+75:     title: "Absolutely worth every rupee! Premium build and acoustic quality.",
+76:     comment: "The sound clarity and battery life blew me away. I've been using it daily for over two weeks now without any latency issues. The USB-C fast charging is ultra convenient for travel.",
+77:     images: [
+78:       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
+79:       "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=500",
+80:     ],
+81:     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+82:     videoPoster: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600",
+83:     likes: 24,
+84:   },
+85:   {
+86:     id: "rev-2",
+87:     author: "Ananya Verma",
+88:     avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150",
+89:     verifiedBuyer: true,
+90:     rating: 5,
+91:     date: "July 26, 2026",
+92:     title: "Mindblowing Unboxing & Crystal Clear Mic Quality!",
+93:     comment: "Attached a quick unboxing video showing the premium matte black finish and gold accents! Mic picks up voice crisp and clear during Zoom calls without background office noise.",
+94:     images: [
+95:       "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500",
+96:       "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500",
+97:     ],
+98:     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+99:     videoPoster: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600",
+100:     likes: 31,
+101:   },
+102:   {
+103:     id: "rev-3",
+104:     author: "Priya Patel",
+105:     avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
+106:     verifiedBuyer: true,
+107:     rating: 5,
+108:     date: "July 24, 2026",
+109:     title: "Super comfortable for long work hours and gym sessions!",
+110:     .filter((item) => checkedComboIds.includes(item.id))
+111:     .reduce((sum, item) => sum + (item.originalPrice || Math.round(item.price * 1.28)), 0);
+112: 
+113:   const handleAddToCart = () => {
+114:     addItem({
+115:       id: product.id,
+116:       name: product.name,
+117:       price: product.price,
+118:       image: product.image,
+119:       color: selectedColor || undefined,
+120: - Storefront Products Landing Page ([page.tsx](file:///d:/Aakash/E-Commerce/src/app/(store)/products/page.tsx)) automatically parses comma-separated spec values, discovering and populating all individual options as interactive checkboxes inside the top secondary filter bar!
+121: 
+122: ### 18. Combo Products & Frequently Bought Together Feature
+123: - **Admin Dashboard Products Management** ([page.tsx](file:///d:/Aakash/E-Commerce/src/app/(admin)/admin/products/page.tsx)):
+124:   - Replaced the action button with a native **Radix UI Sliding Toggle Switch Knob (`<Switch />`)** component alongside a dynamic status badge (`Available` vs `Disabled`) for `Combo Deals Status`.
+125:   - Added support for **Multiple Combo Offer Packages (Max 3 Combos)**: store managers can create up to 3 distinct combo packages (e.g. `Combo Offer 1`, `Combo Offer 2`, `Combo Offer 3`).
+126:   - Enforced a strict limit of **Max 2 bundled products per combo offer** with real-time UI feedback (`Max 2 Items Added`).
+127:   - Features **Category** and **Sub-Category** dropdown filters to easily discover and add products to each combo offer.
+128: - **Storefront Product Detail Page** ([page.tsx](file:///d:/Aakash/E-Commerce/src/app/(store)/products/[id]/page.tsx)):
+129:   - Respects `comboAvailable` status (hides combo section if disabled).
+130:   - Renders top **Combo Offer Pill Tabs** when multiple combo packages exist, allowing customers to switch between different combo packages (e.g. "Combo Offer 1: Earbuds Pack" vs "Combo Offer 2: Smartwatch Bundle").
+131:   - Displays main product + up to 2 bundled combo items connected with `+` separators.
+132:   - Interactive checkboxes with real-time recalculation of total bundle price and savings!
+133:   - Single-click **"Add both to Cart"** / **"Add all X to Cart"** button that populates the cart in one step with instant toast notification!
+134: 
+135: ## Verification Results
+136: 
+137: ### Build Verification
+138: - `npx tsc --noEmit` completed with **0 errors**.
+139: 
+140: 
+141:     likes: 12,
+142:   },
+143:   {
+144:     id: "rev-6",
+145:     author: "Vikramaditya Singh",
+146:     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+147:     verifiedBuyer: true,
+148:     rating: 5,
+149:     date: "July 15, 2026",
+150:     title: "Exceptional battery backup for long travel journeys.",
+151:     comment: "Took this on a 14-hour flight and didn't even need to charge once. The headband padding feels custom-contoured for travel.",
+152:     images: [
+153:       "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500",
+154:     ],
+155:     likes: 9,
+156:   },
+157:   {
+158:     id: "rev-7",
+159:     author: "Karan Malhotra",
+160:     avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
+161:     verifiedBuyer: true,
+162:     rating: 4,
+163:     date: "July 11, 2026",
+164:     title: "Fast COD delivery and 100% authentic product.",
+165:     comment: "Selected Cash on Delivery and received it in 2 days via BlueDart courier. Authentic brand seal intact.",
+166:     images: [
+167:       "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=500",
+168:     ],
+169:     likes: 7,
+170:   },
+171: ];
+172: 
+173: interface PageProps {
+174:   params: Promise<{ id: string }>;
+175: }
+176: 
+177: export default function ProductDetailPage({ params }: PageProps) {
+178:   const resolvedParams = use(params);
+179:   const router = useRouter();
+180:   const { addItem, openCart } = useCart();
+181:   const { isInWishlist, toggleWishlist } = useWishlist();
+182: 
+183:   // Find product by ID
+184:   const product: Product =
+185:     products.find((p) => p.id === resolvedParams.id) || products[0];
+186: 
+187:   const galleryImages = product.images && product.images.length > 0
+188:     ? product.images
+189:     : [product.image];
+190: 
+191:   const [activeImageIndex, setActiveImageIndex] = useState(0);
+192:   const [selectedColor, setSelectedColor] = useState(
+193:     product.colors && product.colors.length > 0 ? product.colors[0].name : ""
+194:   );
+195:   const [selectedSize, setSelectedSize] = useState(
+196:     product.sizes && product.sizes.length > 0 ? product.sizes[0] : ""
+197:   );
+198:   const [quantity, setQuantity] = useState(1);
+199:   const [activeTab, setActiveTab] = useState<"features" | "specs" | "reviews">("features");
+200: 
+201:   // Lightbox Zoom Modal & Visual Showcase Slider States
+202:   const [lightboxOpen, setLightboxOpen] = useState(false);
+203:   const [lightboxIndex, setLightboxIndex] = useState(0);
+204:   const [zoomLevel, setZoomLevel] = useState(1);
+205:   const [showcaseSlideIndex, setShowcaseSlideIndex] = useState(0);
+206: 
+207:   // Shop Similar Products Slider Ref & Data
+208:   const similarSliderRef = useRef<HTMLDivElement>(null);
+209:   const [isSimilarHovered, setIsSimilarHovered] = useState(false);
+210: 
+211:   const similarProducts = useMemo(() => {
+212:     let matches = products.filter(
+213:       (p) => p.id !== product.id && (p.category === product.category || (product.brand && p.brand === product.brand))
+214:     );
+215:     if (matches.length < 6) {
+216:       const fallback = products.filter((p) => p.id !== product.id && !matches.some((m) => m.id === p.id));
+217:       matches = [...matches, ...fallback];
+218:     }
+219:     return matches;
+220:   }, [product]);
+221: 
+222:   const handleScrollSimilar = (direction: "left" | "right") => {
+223:     if (similarSliderRef.current) {
+224:       const container = similarSliderRef.current;
+225:       const scrollAmount = 300;
+226:       if (direction === "left") {
+227:         if (container.scrollLeft <= 5) {
+228:           container.scrollTo({ left: container.scrollWidth, behavior: "smooth" });
+229:         } else {
+230:           container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+231:         }
+232:       } else {
+233:         if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+234:           container.scrollTo({ left: 0, behavior: "smooth" });
+235:         } else {
+236:           container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+237:         }
+238:       }
+239:     }
+240:   };
+241: 
+242:   // Auto-Slide Interval for Similar Products Slider
+243:   useEffect(() => {
+244:     if (isSimilarHovered) return;
+245:     const interval = setInterval(() => {
+246:       handleScrollSimilar("right");
+247:     }, 3200);
+248: 
+249:     return () => clearInterval(interval);
+250:   }, [isSimilarHovered]);
+251: 
+252:   // Enhanced Customer Reviews State
+253:   const [reviewsList, setReviewsList] = useState<ProductReview[]>(
+254:     product.reviews && product.reviews.length > 0 ? product.reviews : sampleCustomerReviews
+255:   );
+256:   const [reviewMediaModal, setReviewMediaModal] = useState<{ type: "image" | "video"; url: string; title?: string } | null>(null);
+257:   const [openAddReviewModal, setOpenAddReviewModal] = useState(false);
+258: 
+259:   // Review Filter & Sort States
+260:   const [reviewRatingFilter, setReviewRatingFilter] = useState<number | "all">("all");
+261:   const [reviewSortBy, setReviewSortBy] = useState<"recent" | "highest" | "lowest">("recent");
+262: 
+263:   const filteredReviews = useMemo(() => {
+264:     let list = [...reviewsList];
+265: 
+266:     // Filter by Star Rating
+267:     if (reviewRatingFilter !== "all") {
+268:       list = list.filter((r) => r.rating === reviewRatingFilter);
+269:     }
+270: 
+271:     // Sort By
+272:     if (reviewSortBy === "highest") {
+273:       list.sort((a, b) => b.rating - a.rating);
+274:     } else if (reviewSortBy === "lowest") {
+275:       list.sort((a, b) => a.rating - b.rating);
+276:     }
+277: 
+278:     return list;
+279:   }, [reviewsList, reviewRatingFilter, reviewSortBy]);
+280:   const [newReview, setNewReview] = useState<{
+281:     author: string;
+282:     rating: number;
+283:     title: string;
+284:     comment: string;
+285:     photos: string[];
+286:     videoUrl: string | null;
+287:   }>({
+288:     author: "",
+289:     rating: 5,
+290:     title: "",
+291:     comment: "",
+292:     photos: [],
+293:     videoUrl: null,
+294:   });
+295: 
+296:   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+297:     const files = e.target.files;
+298:     if (files && files.length > 0) {
+299:       const newUrls: string[] = [];
+300:       Array.from(files).forEach((file) => {
+301:         const url = URL.createObjectURL(file);
+302:         newUrls.push(url);
+303:       });
+304:       setNewReview((prev) => ({
+305:         ...prev,
+306:         photos: [...prev.photos, ...newUrls],
+307:       }));
+308:       toast.success(`${files.length} photo(s) attached to review`);
+309:     }
+310:   };
+311: 
+312:   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+313:     const files = e.target.files;
+314:     if (files && files.length > 0) {
+315:       const videoFile = files[0];
+316:       const videoUrl = URL.createObjectURL(videoFile);
+317:       setNewReview((prev) => ({
+318:         ...prev,
+319:         videoUrl,
+320:       }));
+321:       toast.success("Short video review attached!");
+322:     }
+323:   };
+324: 
+325:   const handleAddReviewSubmit = (e: React.FormEvent) => {
+326:     e.preventDefault();
+327:     if (!newReview.author.trim() || !newReview.comment.trim()) {
+328:       toast.error("Please fill in your name and review details");
+329:       return;
+330:     }
+331:     const created: ProductReview = {
+332:       id: `rev-${Date.now()}`,
+333:       author: newReview.author,
+334:       avatarUrl: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150`,
+335:       verifiedBuyer: true,
+336:       rating: newReview.rating,
+337:       date: "Just now",
+338:       title: newReview.title || "Great purchase!",
+339:       comment: newReview.comment,
+340:       images: newReview.photos.length > 0 ? newReview.photos : [galleryImages[0] || product.image],
+341:       videoUrl: newReview.videoUrl || undefined,
+342:       videoPoster: newReview.videoUrl ? (galleryImages[0] || product.image) : undefined,
+343:       likes: 0,
+344:     };
+345: 
+346:     setReviewsList((prev) => [created, ...prev]);
+347:     setOpenAddReviewModal(false);
+348:     setNewReview({ author: "", rating: 5, title: "", comment: "", photos: [], videoUrl: null });
+349:     toast.success("Thank you! Your customer review with media has been published.");
+350:   };
+351: /* MISSING */
+352: /* MISSING */
+353: /* MISSING */
+354: /* MISSING */
+355: /* MISSING */
+356: /* MISSING */
+357: /* MISSING */
+358: /* MISSING */
+359: /* MISSING */
+360: /* MISSING */
+361: /* MISSING */
+362: /* MISSING */
+363: /* MISSING */
+364: /* MISSING */
+365: /* MISSING */
+366: /* MISSING */
+367: /* MISSING */
+368: /* MISSING */
+369: /* MISSING */
+370: /* MISSING */
+371: /* MISSING */
+372: /* MISSING */
+373: /* MISSING */
+374: /* MISSING */
+375: /* MISSING */
+376: /* MISSING */
+377: /* MISSING */
+378: /* MISSING */
+379: /* MISSING */
+380:     if (e) e.preventDefault();
+381:     const clean = pincode.trim().replace(/\D/g, "");
+382:     if (clean.length !== 6) {
+383:       setPincodeError("Please enter a valid 6-digit Pincode (e.g. 560038)");
+384:       setCheckedPincode(null);
+385:       return;
+386:     }
+387: 
+388:     setPincodeError("");
+389:     setIsCheckingPincode(true);
+390: 
+391:     setTimeout(() => {
+392:       setIsCheckingPincode(false);
+393:       setCheckedPincode(clean);
+394:       toast.success(`Delivery available for Pincode ${clean}!`, {
+395:         description: `Standard Delivery by ${deliveryEstimates.standard}`,
+396:       });
+397:     }, 300);
+398:   };
+399: 
+400:   const handleAddToCart = () => {
+401:     addItem(product, quantity);
+402:     toast.success(`Added ${quantity} × ${product.name} to cart!`, {
+403:       description: selectedColor || selectedSize ? `Variant: ${selectedColor} ${selectedSize}` : undefined,
+404:     });
+405:     openCart();
+406:   };
+407: 
+408:   const handleBuyNow = () => {
+409:     addItem(product, quantity);
+410:     toast.success(`Proceeding to checkout with ${product.name}`);
+411:     router.push("/checkout");
+412:   };
+413: 
+414:   // Related products (5 items, prioritizing same category)
+415:   const relatedProducts = [
+416:     ...products.filter((p) => p.id !== product.id && p.category === product.category),
+417:     ...products.filter((p) => p.id !== product.id && p.category !== product.category),
+418:   ].slice(0, 5);
+419: 
+420:   // Frequently Bought Together Combo Products calculation
+421:   const comboProductsList = useMemo(() => {
+422:     if (product.comboProductIds && product.comboProductIds.length > 0) {
+423:       const resolved = products.filter((p) => product.comboProductIds?.includes(p.id));
+424:       if (resolved.length > 0) return resolved;
+425:     }
+426:     // Fallback picks 1 complementary product from catalog
+427:     const fallback = products.find(
+428:       (p) => p.id !== product.id && p.category === product.category
+429:     ) || products.find((p) => p.id !== product.id);
+430:     return fallback ? [fallback] : [];
+431:   }, [product]);
+432: 
+433:   const allComboItems = useMemo(() => [product, ...comboProductsList], [product, comboProductsList]);
+434: 
+435:   // Selected state for checked combo items
+436:   const [checkedComboIds, setCheckedComboIds] = useState<string[]>([]);
+437: 
+438:   useEffect(() => {
+439:     setCheckedComboIds(allComboItems.map((i) => i.id));
+440:   }, [allComboItems]);
+441: 
+442:   const toggleComboChecked = (id: string) => {
+443:     setCheckedComboIds((prev) =>
+444:       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+445:     );
+446:   };
+447: 
+448:   const comboTotalPrice = useMemo(() => {
+449:     return allComboItems
+450:       .filter((item) => checkedComboIds.includes(item.id))
+451:       .reduce((sum, item) => sum + item.price, 0);
+452:   }, [allComboItems, checkedComboIds]);
+453: 
+454:   const comboOriginalPrice = useMemo(() => {
+455:     return allComboItems
+456:       .filter((item) => checkedComboIds.includes(item.id))
+457:       .reduce((sum, item) => sum + (item.originalPrice || Math.round(item.price * 1.28)), 0);
+458:   }, [allComboItems, checkedComboIds]);
+459: 
+460:   const handleAddComboToCart = () => {
+461:     const itemsToAdd = allComboItems.filter((item) => checkedComboIds.includes(item.id));
+462:     if (itemsToAdd.length === 0) {
+463:       toast.error("Please check at least one item to add to cart");
+464:       return;
+465:     }
+466:     itemsToAdd.forEach((item) => addItem(item, 1));
+467:     toast.success(`Added ${itemsToAdd.length} combo items to your cart!`, {
+468:       description: `Total: ${formatCurrency(comboTotalPrice)}`,
+469:     });
+470:     openCart();
+471: /* MISSING */
+472: /* MISSING */
+473: /* MISSING */
+474: /* MISSING */
+475: /* MISSING */
+476: /* MISSING */
+477: /* MISSING */
+478: /* MISSING */
+479: /* MISSING */
+480: /* MISSING */
+481: /* MISSING */
+482: /* MISSING */
+483: /* MISSING */
+484: /* MISSING */
+485: /* MISSING */
+486: /* MISSING */
+487: /* MISSING */
+488: /* MISSING */
+489: /* MISSING */
+490: /* MISSING */
+491: /* MISSING */
+492: /* MISSING */
+493: /* MISSING */
+494: /* MISSING */
+495: /* MISSING */
+496: /* MISSING */
+497: /* MISSING */
+498: /* MISSING */
+499: /* MISSING */
+500: /* MISSING */
+501: /* MISSING */
+502: /* MISSING */
+503: /* MISSING */
+504: /* MISSING */
+505: /* MISSING */
+506: /* MISSING */
+507: /* MISSING */
+508: /* MISSING */
+509: /* MISSING */
+510:                       type="text"
+511:                       maxLength={6}
+512:                       placeholder="Enter 6-digit Pincode..."
+513:                       value={pincode}
+514:                       onChange={(e) => {
+515:                         const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+516:                         setPincode(val);
+517:                         if (pincodeError) setPincodeError("");
+518:                       }}
+519:                       className="pl-8 h-8 text-xs font-mono bg-background"
+520:                     />
+521:                   </div>
+522:                   <Button
+523:                     type="submit"
+524:                     size="sm"
+525:                     variant="default"
+526:                     disabled={isCheckingPincode}
+527:                     className="h-8 px-3 text-xs font-bold shrink-0"
+528:                   >
+529:                     {isCheckingPincode ? "Checking..." : "Check"}
+530:                   </Button>
+531:                 </form>
+532: 
+533:                 {pincodeError && (
+534:                   <p className="text-[10px] text-destructive font-medium">{pincodeError}</p>
+535:                 )}
+536: 
+537:                 {checkedPincode && !pincodeError && (
+538:                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5 text-xs">
+539:                     <div className="flex items-center justify-between p-2 rounded-lg bg-background border">
+540:                       <div className="flex items-center gap-2 min-w-0">
+541:                         <Truck className="h-3.5 w-3.5 text-primary shrink-0" />
+542:                         <div className="min-w-0">
+543:                           <span className="font-bold text-foreground text-[11px] block leading-tight truncate">Standard Delivery</span>
+544:                         </div>
+545:                       </div>
+546:                       <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] shrink-0 ml-1">
+547:                         By {deliveryEstimates.standard}
+548:                       </span>
+549:                     </div>
+550: 
+551:                     <div className="flex items-center justify-between p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+552:                       <div className="flex items-center gap-2 min-w-0">
+553:                         <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0" />
+554:                         <div className="min-w-0">
+555:                           <span className="font-bold text-foreground text-[11px] block leading-tight truncate">Express Delivery</span>
+556:                         </div>
+557:                       </div>
+558:                       <span className="font-bold text-amber-600 dark:text-amber-400 text-[11px] shrink-0 ml-1">
+559:                         By {deliveryEstimates.express}
+560:                       </span>
+561:                     </div>
+562:                   </div>
+563:                 )}
+564:               </div>
+565:             </div>
+566:           </div>
+567:         </div>
+568: 
+569:         {/* Right Column: Product Info & Purchase Form */}
+570:         <div className="space-y-6">
+571:           <div className="space-y-2">
+572:             <div className="flex items-center gap-2">
+573:               <Badge className="bg-primary/10 text-primary border-primary/20">
+574:                 {product.category}
+575:               </Badge>
+576:               <span className="text-xs text-muted-foreground font-mono">
+577:                 SKU: {product.sku}
+578:               </span>
+579:             </div>
+580: 
+581:             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+582:               {product.name}
+583:             </h1>
+584: 
+585:             {/* Rating Stars & Review Count */}
+586:             <div className="flex items-center gap-2 pt-1">
+587:               <div className="flex items-center text-amber-400">
+588:                 {[...Array(5)].map((_, i) => (
+589:                   <Star
+590:                     key={i}
+591:                     className={`h-4 w-4 ${
+592:                       i < Math.floor(product.rating ?? 4.8)
+593:                         ? "fill-current"
+594:                         : "text-muted-foreground/30"
+595:                     }`}
+596:                   />
+597:                 ))}
+598:               </div>
+599:               <span className="text-xs font-bold text-foreground">
+600:                 {product.rating ?? 4.8}
+601:               </span>
+602:               <span className="text-xs text-muted-foreground">
+603:                 ({reviewsList.length} customer reviews)
+604:               </span>
+605:             </div>
+606:           </div>
+607: 
+608:           {/* Prominent Price & Discount Display */}
+609:           {(() => {
+610:             const mrp = product.originalPrice || Math.round(product.price * 1.28);
+611:             const savings = mrp - product.price;
+612:             const discountPercent = Math.round((savings / mrp) * 100);
+613: 
+614:             return (
+615:               <div className="space-y-1 pt-2">
+616:                 <div className="flex flex-wrap items-baseline gap-3">
+617:                   {/* Large Prominent Selling Price */}
+618:                   <span className="text-4xl sm:text-5xl font-black text-foreground tracking-tight">
+619:                     {formatCurrency(product.price)}
+620:                   </span>
+621: /* MISSING */
+622: /* MISSING */
+623: /* MISSING */
+624: /* MISSING */
+625: /* MISSING */
+626: /* MISSING */
+627: /* MISSING */
+628: /* MISSING */
+629: /* MISSING */
+630: /* MISSING */
+631: /* MISSING */
+632: /* MISSING */
+633: /* MISSING */
+634: /* MISSING */
+635: /* MISSING */
+636: /* MISSING */
+637: /* MISSING */
+638: /* MISSING */
+639: /* MISSING */
+640: /* MISSING */
+641: /* MISSING */
+642: /* MISSING */
+643: /* MISSING */
+644: /* MISSING */
+645: /* MISSING */
+646: /* MISSING */
+647: /* MISSING */
+648: /* MISSING */
+649: /* MISSING */
+650: /* MISSING */
+651: /* MISSING */
+652: /* MISSING */
+653: /* MISSING */
+654: /* MISSING */
+655: /* MISSING */
+656: /* MISSING */
+657: /* MISSING */
+658: /* MISSING */
+659: /* MISSING */
+660: /* MISSING */
+661: /* MISSING */
+662: /* MISSING */
+663: /* MISSING */
+664: /* MISSING */
+665: /* MISSING */
+666: /* MISSING */
+667: /* MISSING */
+668: /* MISSING */
+669: /* MISSING */
+670: /* MISSING */
+671: /* MISSING */
+672: /* MISSING */
+673: /* MISSING */
+674: /* MISSING */
+675: /* MISSING */
+676: /* MISSING */
+677: /* MISSING */
+678: /* MISSING */
+679: /* MISSING */
+680: /* MISSING */
+681: /* MISSING */
+682: /* MISSING */
+683: /* MISSING */
+684: /* MISSING */
+685: /* MISSING */
+686: /* MISSING */
+687: /* MISSING */
+688: /* MISSING */
+689: /* MISSING */
+690: /* MISSING */
+691: /* MISSING */
+692: /* MISSING */
+693: /* MISSING */
+694: /* MISSING */
+695: /* MISSING */
+696: /* MISSING */
+697: /* MISSING */
+698: /* MISSING */
+699: /* MISSING */
+700: /* MISSING */
+701: /* MISSING */
+702: /* MISSING */
+703: /* MISSING */
+704: /* MISSING */
+705: /* MISSING */
+706: /* MISSING */
+707: /* MISSING */
+708: /* MISSING */
+709: /* MISSING */
+710: /* MISSING */
+711: /* MISSING */
+712: /* MISSING */
+713: /* MISSING */
+714: /* MISSING */
+715: /* MISSING */
+716: /* MISSING */
+717: /* MISSING */
+718: /* MISSING */
+719: /* MISSING */
+720: /* MISSING */
+721: /* MISSING */
+722: /* MISSING */
+723: /* MISSING */
+724: /* MISSING */
+725: /* MISSING */
+726: /* MISSING */
+727: /* MISSING */
+728: /* MISSING */
+729: /* MISSING */
+730: /* MISSING */
+731: /* MISSING */
+732: /* MISSING */
+733: /* MISSING */
+734: /* MISSING */
+735: /* MISSING */
+736: /* MISSING */
+737: /* MISSING */
+738: /* MISSING */
+739: /* MISSING */
+740: /* MISSING */
+741: /* MISSING */
+742: /* MISSING */
+743: /* MISSING */
+744: /* MISSING */
+745: /* MISSING */
+746: /* MISSING */
+747: /* MISSING */
+748: /* MISSING */
+749: /* MISSING */
+750: /* MISSING */
+751: /* MISSING */
+752: /* MISSING */
+753: /* MISSING */
+754: /* MISSING */
+755: /* MISSING */
+756: /* MISSING */
+757: /* MISSING */
+758: /* MISSING */
+759: /* MISSING */
+760: /* MISSING */
+761: /* MISSING */
+762: /* MISSING */
+763: /* MISSING */
+764: /* MISSING */
+765: /* MISSING */
+766: /* MISSING */
+767: /* MISSING */
+768: /* MISSING */
+769: /* MISSING */
+770: /* MISSING */
+771: /* MISSING */
+772: /* MISSING */
+773: /* MISSING */
+774: /* MISSING */
+775: /* MISSING */
+776: /* MISSING */
+777: /* MISSING */
+778: /* MISSING */
+779: /* MISSING */
+780: /* MISSING */
+781: /* MISSING */
+782: /* MISSING */
+783: /* MISSING */
+784: /* MISSING */
+785: /* MISSING */
+786: /* MISSING */
+787: /* MISSING */
+788: /* MISSING */
+789: /* MISSING */
+790: /* MISSING */
+791: /* MISSING */
+792: /* MISSING */
+793: /* MISSING */
+794: /* MISSING */
+795: /* MISSING */
+796: /* MISSING */
+797: /* MISSING */
+798: /* MISSING */
+799: /* MISSING */
+800: /* MISSING */
+801: /* MISSING */
+802: /* MISSING */
+803: /* MISSING */
+804: /* MISSING */
+805: /* MISSING */
+806: /* MISSING */
+807: /* MISSING */
+808: /* MISSING */
+809: /* MISSING */
+810: /* MISSING */
+811: /* MISSING */
+812: /* MISSING */
+813: /* MISSING */
+814: /* MISSING */
+815: /* MISSING */
+816: /* MISSING */
+817: /* MISSING */
+818: /* MISSING */
+819: /* MISSING */
+820: /* MISSING */
+821: /* MISSING */
+822: /* MISSING */
+823: /* MISSING */
+824: /* MISSING */
+825: /* MISSING */
+826: /* MISSING */
+827: /* MISSING */
+828: /* MISSING */
+829: /* MISSING */
+830:           <div className="flex flex-col items-center gap-1.5 p-2 pt-4 lg:pt-2 col-span-2 sm:col-span-1">
+831:             <Lock className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+832:             <span className="text-xs font-bold text-foreground">Secure Checkout</span>
+833:             <span className="text-[11px] text-muted-foreground">256-Bit SSL Encrypted</span>
+834:           </div>
+835:         </div>
+836:       </div>
+837: 
+838:       {/* Middle Tabbed Specifications & Customer Reviews */}
+839:       <div className="space-y-6 pt-6 border-t">
+840:         <div className="flex items-center gap-4 border-b pb-3">
+841:           <button
+842:             onClick={() => setActiveTab("features")}
+843:             className={`text-sm font-bold pb-2 border-b-2 transition-all ${
+844:               activeTab === "features"
+845:                 ? "border-primary text-primary"
+846:                 : "border-transparent text-muted-foreground hover:text-foreground"
+847:             }`}
+848:           >
+849:             About Product
+850:           </button>
+851: 
+852:           <button
+853:             onClick={() => setActiveTab("specs")}
+854:             className={`text-sm font-bold pb-2 border-b-2 transition-all ${
+855:               activeTab === "specs"
+856:                 ? "border-primary text-primary"
+857:                 : "border-transparent text-muted-foreground hover:text-foreground"
+858:             }`}
+859:           >
+860:             More Information
+861:           </button>
+862: 
+863:           <button
+864:             onClick={() => setActiveTab("reviews")}
+865:             className={`text-sm font-bold pb-2 border-b-2 transition-all ${
+866:               activeTab === "reviews"
+867:                 ? "border-primary text-primary"
+868:                 : "border-transparent text-muted-foreground hover:text-foreground"
+869:             }`}
+870:           >
+871:             Customer Reviews ({reviewsList.length})
+872:           </button>
+873:         </div>
+874: 
+875:         {/* Tab 1: About Product (Dynamic Configured Sections Layout) */}
+876:         {activeTab === "features" && (
+877:           <div className="space-y-10">
+878:             {((product.aboutSections && product.aboutSections.length > 0)
+879:               ? product.aboutSections
+880:               : defaultAboutSections
+881:             )
+882:               .filter((sec: AboutProductSection) => sec.active !== false)
+883:               .map((section: AboutProductSection) => {
+884:                 switch (section.type) {
+885:                   case "about-text":
+886:                     return (
+887:                       <div key={section.id} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+888:                         <div className="lg:col-span-2 space-y-4">
+889:                           <div className="space-y-1">
+890:                             <h3 className="text-2xl font-extrabold text-foreground tracking-tight">
+891:                               {section.content.heading || `Designed for Excellence. Engineered for ${product.name}.`}
+892:                             </h3>
+893:                           </div>
+894:                           <p className="text-sm text-muted-foreground leading-relaxed">
+895:                             {section.content.description1 || `${product.description} Built with meticulous attention to detail, ${product.name} delivers an uncompromised blend of cutting-edge technology, ergonomic comfort, and enduring durability.`}
+896:                           </p>
+897:                           <p className="text-sm text-muted-foreground leading-relaxed">
+898:                             {section.content.description2 || `Whether working from home, commuting across the city, or pursuing active goals, ${product.name} offers peak performance with zero friction.`}
+899:                           </p>
+900:                         </div>
+901:                       </div>
+902:                     );
+903: 
+904:                   case "highlights":
+905:                     return (
+906:                       <div key={section.id} className="space-y-4 pt-4 border-t">
+907:                         <h4 className="text-base font-bold text-foreground flex items-center gap-2">
+908:                           <Sparkles className="h-4 w-4 text-amber-500" /> {section.title}
+909:                         </h4>
+910:                         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+911:                           {(section.content.items && section.content.items.length > 0
+912:                             ? section.content.items
+913:                             : [
+914:                                 { title: "Next-Gen Speed & Ultra-Low Latency", description: "Engineered with ultra-responsive architecture for instant performance, crystal-clear audio, and zero lag." },
+915:                                 { title: "Aerospace-Grade Durability & Finish", description: "Crafted with premium scratch-resistant aluminum & beryllium materials tested for long-lasting daily wear." },
+916:                                 { title: "All-Day Battery Life & USB-C Quick Charge", description: "Intelligent power management delivers 35+ hours continuous usage with 10-minute quick charge boost." },
+917:                                 { title: "Precision Ergonomics & Breathable Ear Cushions", description: "Biomechanically contoured headband and memory foam ear pads for fatigue-free comfort during extended work sessions." },
+918:                               ]
+919:                           ).map((item: { title?: string; description?: string }, idx: number) => (
+920:                             <li key={idx} className="flex items-start gap-3 p-3.5 rounded-xl border bg-muted/20 hover:border-primary/30 transition-all">
+921:                               <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5 font-bold">
+922:                                 <CheckCircle2 className="h-4 w-4 text-primary" />
+923:                               </div>
+924:                               <div>
+925:                                 <span className="font-bold text-foreground block text-xs">{item.title}</span>
+926:                                 {item.description && <span className="text-muted-foreground leading-relaxed block pt-0.5">{item.description}</span>}
+927:                               </div>
+928:                             </li>
+929:                           ))}
+930:                         </ul>
+931:                       </div>
+932:                     );
+933: 
+934:                   case "banner":
+935:                     return (
+936:                       <div key={section.id} className="relative overflow-hidden rounded-3xl border shadow-md group">
+937:                         <img
+938:                           src={section.content.bannerImage || "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=1200"}
+939:                           alt="Product Showcase Banner"
+940:                           className="w-full h-64 sm:h-80 object-cover group-hover:scale-102 transition-transform duration-700"
+941:                         />
+942:                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col justify-end p-6 sm:p-10 space-y-2 text-white">
+943:                           <Badge className="w-max bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider">
+944:                             {section.content.bannerBadge || "★ Metromindz Flagship Series"}
+945:                           </Badge>
+946:                           <h3 className="text-xl sm:text-3xl font-black tracking-tight">
+947:                             {section.content.bannerTitle || "Experience Unrivaled Craftsmanship & Performance"}
+948:                           </h3>
+949:                           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
+950:                             {section.content.bannerSubtitle || `Every aspect of ${product.name} is engineered to elevate your daily experience with unmatched precision and style.`}
+951:                           </p>
+952:                         </div>
+953:                       </div>
+954:                     );
+955: 
+956:                   case "showcase":
+957:                     const showcaseItems = section.content.items && section.content.items.length > 0 ? section.content.items : [
+958:                       { title: "Laser-Etched Precision & Matte Finish", description: "Refined tactile finishes and premium smudge-resistant coating.", badge: "Craftsmanship", image: galleryImages[0] || product.image },
+959:                       { title: "Seamless Multi-Device Instant Sync", description: "Instant 1-tap connection across laptops, smartphones, and tablet ecosystems.", badge: "Connectivity", image: galleryImages[1] || galleryImages[0] || product.image },
+960:                       { title: "Smart Environmental ANC & Transparency Mode", description: "Adaptive dual-microphone noise suppression isolates external chatter.", badge: "Acoustics", image: galleryImages[2] || galleryImages[0] || product.image },
+961:                     ];
+962:                     const currentSlide = showcaseItems[showcaseSlideIndex % showcaseItems.length];
+963: 
+964:                     return (
+965:                       <div key={section.id} className="space-y-4 pt-4 border-t">
+966:                         <div className="flex items-center justify-between">
+967:                           <h4 className="text-base font-bold text-foreground flex items-center gap-2">
+968:                             <Maximize2 className="h-4 w-4 text-primary" /> {section.title}
+969:                           </h4>
+970:                           <div className="flex items-center gap-2">
+971:                             <span className="text-xs font-bold font-mono text-muted-foreground mr-1">
+972:                               {String((showcaseSlideIndex % showcaseItems.length) + 1).padStart(2, "0")} / {String(showcaseItems.length).padStart(2, "0")}
+973:                             </span>
+974:                             <Button size="icon" variant="outline" onClick={() => setShowcaseSlideIndex((prev) => (prev === 0 ? showcaseItems.length - 1 : prev - 1))} className="h-8 w-8 rounded-full">
+975:                               <ChevronLeft className="h-4 w-4" />
+976:                             </Button>
+977:                             <Button size="icon" variant="outline" onClick={() => setShowcaseSlideIndex((prev) => (prev === showcaseItems.length - 1 ? 0 : prev + 1))} className="h-8 w-8 rounded-full">
+978:                               <ChevronRight className="h-4 w-4" />
+979:                             </Button>
+980:                           </div>
+981:                         </div>
+982: 
+983:                         <div className="relative overflow-hidden rounded-3xl border shadow-md bg-slate-950 text-white min-h-[300px] sm:min-h-[360px] flex flex-col justify-end group">
+984:                           <img src={currentSlide.image || product.image} alt={currentSlide.title} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
+985:                           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+986:                           <div className="relative z-10 p-6 sm:p-8 space-y-2 max-w-2xl">
+987:                             <Badge className="bg-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider">
+988:                               ★ {currentSlide.badge || "Feature"}
+989:                             </Badge>
+990:                             <h4 className="text-lg sm:text-2xl font-black tracking-tight leading-snug">{currentSlide.title}</h4>
+991:                             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{currentSlide.description}</p>
+992:                           </div>
+993:                         </div>
+994:                       </div>
+995:                     );
+996: 
+997:                   case "specs-summary":
+998:                     return (
+999:                       <div key={section.id} className="p-5 rounded-2xl bg-muted/20 border space-y-4 shadow-2xs">
+1000:                         <div className="flex items-center justify-between border-b pb-3">
+1001:                           <h4 className="text-sm font-extrabold text-foreground flex items-center gap-2">
+1002:                             <CheckCircle2 className="h-4 w-4 text-emerald-500" /> {section.title}
+1003:                           </h4>
+1004:                         </div>
+1005:                         <ul className="space-y-3 text-xs">
+1006:                           {(section.content.items && section.content.items.length > 0 ? section.content.items : product.features?.map((f: string) => ({ title: f })) || []).map((item: { title?: string }, i: number) => (
+1007:                             <li key={i} className="flex items-start gap-2.5 p-2 rounded-xl bg-background border hover:border-primary/30 transition-all">
+1008:                               <div className="h-5 w-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+1009:                                 <Check className="h-3 w-3" />
+1010:                               </div>
+1011:                               <span className="font-semibold text-foreground leading-snug">{item.title}</span>
+1012:                             </li>
+1013:                           ))}
+1014:                         </ul>
+1015:                       </div>
+1016:                     );
+1017: 
+1018:                   case "whats-in-box":
+1019:                     return (
+1020:                       <div key={section.id} className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-4 shadow-2xs">
+1021:                         <div className="flex items-center justify-between border-b border-amber-500/20 pb-3">
+1022:                           <h4 className="text-sm font-extrabold text-foreground flex items-center gap-2">
+1023:                             <PackageCheck className="h-4 w-4 text-amber-500" /> {section.title}
+1024:                           </h4>
+1025:                           <Badge className="bg-amber-500 text-slate-950 text-[10px] font-bold">
+1026:                             Retail Packaging
+1027:                           </Badge>
+1028:                         </div>
+1029:                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+1030:                           {(section.content.items || [
+1031:                             { title: `${product.name} Master Unit`, subtitle: "Main Device", qty: "1×" },
+1032:                             { title: "USB-C Fast Cable", subtitle: "High-Speed Sync & Charge", qty: "1×" },
+1033:                             { title: "Warranty Registration Card", subtitle: "1-Year Official Seal", qty: "1×" },
+1034:                             { title: "Quick Setup Manual", subtitle: "User Safety Guide", qty: "1×" },
+1035:                           ]).map((boxItem: { title?: string; subtitle?: string; qty?: string }, i: number) => (
+1036:                             <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-background border shadow-2xs">
+1037:                               <div className="h-8 w-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 font-bold">
+1038:                                 {boxItem.qty || "1×"}
+1039:                               </div>
+1040:                               <div className="min-w-0">
+1041:                                 <span className="font-bold text-foreground block text-xs truncate">{boxItem.title}</span>
+1042:                                 {boxItem.subtitle && <span className="text-[10px] text-muted-foreground block">{boxItem.subtitle}</span>}
+1043:                               </div>
+1044:                             </div>
+1045:                           ))}
+1046:                         </div>
+1047:                       </div>
+1048:                     );
+1049: 
+1050:                   default:
+1051:                     return null;
+1052:                 }
+1053:               })}
+1054:           </div>
+1055:         )}
+1056: 
+1057:         {/* Tab 2: Technical Specifications / More Information Accordion */}
+1058:         {activeTab === "specs" && (
+1059:           <div className="max-w-3xl space-y-4">
+1060:             <div className="flex items-center justify-between">
+1061:               <h3 className="text-lg font-bold text-foreground">Additional Product Information</h3>
+1062:             </div>
+1063: 
+1064:             <Accordion type="multiple" defaultValue={["general-info", "tech-specs", "logistics"]} className="w-full space-y-3">
+1065:               {/* Accordion 1: General Product Identifiers */}
+1066:               <AccordionItem value="general-info" className="border rounded-xl px-4 bg-background shadow-2xs">
+1067:                 <AccordionTrigger className="hover:no-underline font-bold text-sm">
+1068:                   <span>General Product Information & Identification</span>
+1069:                 </AccordionTrigger>
+1070:                 <AccordionContent className="pt-2 pb-4">
+1071:                   <div className="divide-y rounded-lg border overflow-hidden">
+1072:                     <div className="grid grid-cols-3 p-3 text-xs bg-amber-500/10 dark:bg-amber-500/5">
+1073:                       <span className="font-bold text-foreground">Product SKU Code</span>
+1074:                       <span className="col-span-2 font-mono font-bold text-amber-600 dark:text-amber-400">
+1075:                         {product.sku}
+1076:                       </span>
+1077:                     </div>
+1078:                     <div className="grid grid-cols-3 p-3 text-xs bg-background">
+1079:                       <span className="font-medium text-muted-foreground">Product Name</span>
+1080:                       <span className="col-span-2 font-semibold text-foreground">{product.name}</span>
+1081:                     </div>
+1082:                     <div className="grid grid-cols-3 p-3 text-xs bg-muted/20">
+1083:                       <span className="font-medium text-muted-foreground">Brand Manufacturer</span>
+1084:                       <span className="col-span-2 font-semibold text-foreground">{product.brand || "Metromindz"}</span>
+1085:                     </div>
+1086:                     <div className="grid grid-cols-3 p-3 text-xs bg-background">
+1087:                       <span className="font-medium text-muted-foreground">Category</span>
+1088:                       <span className="col-span-2 font-semibold text-foreground">{product.category}</span>
+1089:                     </div>
+1090:                     <div className="grid grid-cols-3 p-3 text-xs bg-muted/20">
+1091:                       <span className="font-medium text-muted-foreground">Target Audience</span>
+1092:                       <span className="col-span-2 font-semibold text-foreground">{product.gender || "Unisex"}</span>
+1093:                     </div>
+1094:                   </div>
+1095:                 </AccordionContent>
+1096:               </AccordionItem>
+1097: 
+1098:               {/* Accordion 2: Technical Specifications Matrix */}
+1099:               <AccordionItem value="tech-specs" className="border rounded-xl px-4 bg-background shadow-2xs">
+1100:                 <AccordionTrigger className="hover:no-underline font-bold text-sm">
+1101:                   <span>Technical & Hardware Specifications</span>
+1102:                 </AccordionTrigger>
+1103:                 <AccordionContent className="pt-2 pb-4">
+1104:                   <div className="divide-y rounded-lg border overflow-hidden">
+1105:                     {product.specs && Object.keys(product.specs).length > 0 ? (
+1106:                       Object.entries(product.specs).map(([key, val], idx) => (
+1107:                         <div
+1108:                           key={key}
+1109:                           className={`grid grid-cols-3 p-3 text-xs ${
+1110:                             idx % 2 === 0 ? "bg-muted/20" : "bg-background"
+1111:                           }`}
+1112:                         >
+1113:                           <span className="font-semibold text-foreground">{key}</span>
+1114:                           <span className="col-span-2 text-muted-foreground font-mono">{val}</span>
+1115:                         </div>
+1116:                       ))
+1117:                     ) : (
+1118:                       <>
+1119:                         <div className="grid grid-cols-3 p-3 text-xs bg-muted/20">
+1120:                           <span className="font-semibold text-foreground">Driver Unit</span>
+1121:                           <span className="col-span-2 text-muted-foreground font-mono">40mm Beryllium Dynamic</span>
+1122:                         </div>
+1123:                         <div className="grid grid-cols-3 p-3 text-xs bg-background">
+1124:                           <span className="font-semibold text-foreground">Frequency Response</span>
+1125:                           <span className="col-span-2 text-muted-foreground font-mono">20Hz - 40,000Hz</span>
+1126:                         </div>
+1127:                         <div className="grid grid-cols-3 p-3 text-xs bg-muted/20">
+1128:                           <span className="font-semibold text-foreground">Connectivity</span>
+1129:                           <span className="col-span-2 text-muted-foreground font-mono">Bluetooth 5.3 (AAC, aptX HD)</span>
+1130:                         </div>
+1131:                       </>
+1132:                     )}
+1133:                   </div>
+1134:                 </AccordionContent>
+1135:               </AccordionItem>
+1136: 
+1137:               {/* Accordion 3: Shipping & Guarantee Policies */}
+1138:               <AccordionItem value="logistics" className="border rounded-xl px-4 bg-background shadow-2xs">
+1139:                 <AccordionTrigger className="hover:no-underline font-bold text-sm">
+1140:                   <span>Service Policies, Warranty & Return Terms</span>
+1141:                 </AccordionTrigger>
+1142:                 <AccordionContent className="pt-2 pb-4">
+1143:                   <div className="divide-y rounded-lg border overflow-hidden text-xs">
+1144:                     <div className="grid grid-cols-3 p-3 bg-muted/20">
+1145:                       <span className="font-semibold text-foreground">Cash on Delivery</span>
+1146:                       <span className="col-span-2 font-semibold text-emerald-600 dark:text-emerald-400">
+1147:                         {product.codAvailable !== false
+1148:                           ? product.codText || "✓ Available across 19,000+ pincodes"
+1149:                           : "✕ Online Payment Only"}
+1150:                       </span>
+1151:                     </div>
+1152:                     <div className="grid grid-cols-3 p-3 bg-background">
+1153:                       <span className="font-semibold text-foreground">Return Window</span>
+1154:                       <span className="col-span-2 text-muted-foreground">
+1155:                         {product.returnAvailable !== false
+1156:                           ? product.returnText || "7 Days Easy Money-Back Return Policy"
+1157:                           : "Non-Returnable Item"}
+1158:                       </span>
+1159:                     </div>
+1160:                     <div className="grid grid-cols-3 p-3 bg-muted/20">
+1161:                       <span className="font-semibold text-foreground">Exchange / Replacement</span>
+1162:                       <span className="col-span-2 text-muted-foreground">
+1163:                         {product.exchangeAvailable !== false
+1164:                           ? product.exchangeText || "Free Size / Color Variant Exchange"
+1165:                           : "Standard Manufacturer Terms"}
+1166:                       </span>
+1167:                     </div>
+1168:                     <div className="grid grid-cols-3 p-3 bg-background">
+1169:                       <span className="font-semibold text-foreground">Manufacturer Warranty</span>
+1170:                       <span className="col-span-2 font-semibold text-foreground">
+1171:                         {product.warrantyPeriod || "1 Year Official Brand Warranty"}
+1172:                       </span>
+1173:         {/* Tab 3: Customer Reviews (Rich UI with Avatars, Photos, Videos & Rating Breakdown) */}
+1174:         {activeTab === "reviews" && (
+1175:           <div className="max-w-4xl space-y-8">
+1176:             {/* Rating Breakdown & Header */}
+1177:             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 rounded-2xl border bg-muted/20 items-center">
+1178:               <div className="flex flex-col items-center justify-center text-center p-4 border-r-0 md:border-r space-y-2">
+1179:                 <span className="text-4xl font-extrabold text-foreground tracking-tight">
+1180:                   {product.rating ?? 4.9}
+1181: /* MISSING */
+1182: /* MISSING */
+1183: /* MISSING */
+1184: /* MISSING */
+1185: /* MISSING */
+1186: /* MISSING */
+1187: /* MISSING */
+1188: /* MISSING */
+1189: /* MISSING */
+1190: /* MISSING */
+1191: /* MISSING */
+1192: /* MISSING */
+1193: /* MISSING */
+1194: /* MISSING */
+1195: /* MISSING */
+1196: /* MISSING */
+1197: /* MISSING */
+1198: /* MISSING */
+1199: /* MISSING */
+1200: /* MISSING */
+1201: /* MISSING */
+1202: /* MISSING */
+1203: /* MISSING */
+1204: /* MISSING */
+1205: /* MISSING */
+1206: /* MISSING */
+1207: /* MISSING */
+1208: /* MISSING */
+1209: /* MISSING */
+1210: /* MISSING */
+1211: /* MISSING */
+1212: /* MISSING */
+1213: /* MISSING */
+1214: /* MISSING */
+1215: /* MISSING */
+1216: /* MISSING */
+1217: /* MISSING */
+1218: /* MISSING */
+1219: /* MISSING */
+1220: /* MISSING */
+1221: /* MISSING */
+1222: /* MISSING */
+1223: /* MISSING */
+1224: /* MISSING */
+1225: /* MISSING */
+1226: /* MISSING */
+1227: /* MISSING */
+1228: /* MISSING */
+1229: /* MISSING */
+1230: /* MISSING */
+1231: /* MISSING */
+1232: /* MISSING */
+1233: /* MISSING */
+1234: /* MISSING */
+1235: /* MISSING */
+1236: /* MISSING */
+1237: /* MISSING */
+1238: /* MISSING */
+1239: /* MISSING */
+1240: /* MISSING */
+1241: /* MISSING */
+1242: /* MISSING */
+1243: /* MISSING */
+1244: /* MISSING */
+1245: /* MISSING */
+1246: /* MISSING */
+1247: /* MISSING */
+1248: /* MISSING */
+1249: /* MISSING */
+1250: /* MISSING */
+1251: /* MISSING */
+1252: /* MISSING */
+1253: /* MISSING */
+1254: /* MISSING */
+1255: /* MISSING */
+1256: /* MISSING */
+1257: /* MISSING */
+1258: /* MISSING */
+1259: /* MISSING */
+1260: /* MISSING */
+1261: /* MISSING */
+1262: /* MISSING */
+1263: /* MISSING */
+1264: /* MISSING */
+1265: /* MISSING */
+1266: /* MISSING */
+1267: /* MISSING */
+1268: /* MISSING */
+1269: /* MISSING */
+1270: /* MISSING */
+1271: /* MISSING */
+1272: /* MISSING */
+1273: /* MISSING */
+1274: /* MISSING */
+1275: /* MISSING */
+1276: /* MISSING */
+1277: /* MISSING */
+1278: /* MISSING */
+1279: /* MISSING */
+1280: /* MISSING */
+1281: /* MISSING */
+1282: /* MISSING */
+1283: /* MISSING */
+1284: /* MISSING */
+1285: /* MISSING */
+1286: /* MISSING */
+1287: /* MISSING */
+1288: /* MISSING */
+1289: /* MISSING */
+1290: /* MISSING */
+1291: /* MISSING */
+1292: /* MISSING */
+1293: /* MISSING */
+1294: /* MISSING */
+1295: /* MISSING */
+1296: /* MISSING */
+1297: /* MISSING */
+1298: /* MISSING */
+1299: /* MISSING */
+1300: /* MISSING */
+1301: /* MISSING */
+1302: /* MISSING */
+1303: /* MISSING */
+1304: /* MISSING */
+1305: /* MISSING */
+1306: /* MISSING */
+1307: /* MISSING */
+1308: /* MISSING */
+1309: /* MISSING */
+1310: /* MISSING */
+1311: /* MISSING */
+1312: /* MISSING */
+1313: /* MISSING */
+1314: /* MISSING */
+1315: /* MISSING */
+1316: /* MISSING */
+1317: /* MISSING */
+1318: /* MISSING */
+1319: /* MISSING */
+1320: /* MISSING */
+1321: /* MISSING */
+1322: /* MISSING */
+1323: /* MISSING */
+1324: /* MISSING */
+1325: /* MISSING */
+1326: /* MISSING */
+1327: /* MISSING */
+1328: /* MISSING */
+1329: /* MISSING */
+1330: /* MISSING */
+1331: /* MISSING */
+1332: /* MISSING */
+1333: /* MISSING */
+1334: /* MISSING */
+1335: /* MISSING */
+1336: /* MISSING */
+1337: /* MISSING */
+1338: /* MISSING */
+1339: /* MISSING */
+1340: /* MISSING */
+1341: /* MISSING */
+1342: /* MISSING */
+1343: /* MISSING */
+1344: /* MISSING */
+1345: /* MISSING */
+1346: /* MISSING */
+1347: /* MISSING */
+1348: /* MISSING */
+1349: /* MISSING */
+1350:                         )}
+1351:                       </CardContent>
+1352:                     </Card>
+1353:                 ))}
+1354:               </div>
+1355:             )}
+1356:             </div>
+1357:           </div>
+1358:         )}
+1359:       </div>
+1360: 
+1361:       {/* "Shop Similar Products" Slider Section */}
+1362:       <div className="space-y-4 pt-8 border-t">
+1363:         <div className="flex items-center justify-between">
+1364:           <div>
+1365:             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+1366:               Shop Similar Products
+1367:             </h2>
+1368:           </div>
+1369: 
+1370:           {/* Slider Navigation Arrow Controls */}
+1371:           <div className="flex items-center gap-2">
+1372:             <Button
+1373:               variant="outline"
+1374:               size="icon"
+1375:               onClick={() => handleScrollSimilar("left")}
+1376:               className="h-8 w-8 rounded-full border shadow-2xs hover:bg-muted cursor-pointer"
+1377:               aria-label="Scroll Similar Products Left"
+1378:             >
+1379:               <ChevronLeft className="h-4 w-4" />
+1380:             </Button>
+1381:             <Button
+1382:               variant="outline"
+1383:               size="icon"
+1384:               onClick={() => handleScrollSimilar("right")}
+1385:               className="h-8 w-8 rounded-full border shadow-2xs hover:bg-muted cursor-pointer"
+1386:               aria-label="Scroll Similar Products Right"
+1387:             >
+1388:               <ChevronRight className="h-4 w-4" />
+1389:             </Button>
+1390:           </div>
+1391:         </div>
+1392: 
+1393:         {/* Scrollable Products Carousel Slider Track */}
+1394:         <div
+1395:           ref={similarSliderRef}
+1396:           onMouseEnter={() => setIsSimilarHovered(true)}
+1397:           onMouseLeave={() => setIsSimilarHovered(false)}
+1398:           className="flex items-stretch gap-4 overflow-x-auto scrollbar-none scroll-smooth pb-3 pt-1 -mx-2 px-2"
+1399:           style={{ scrollSnapType: "x mandatory" }}
+1400:                               </button>
+1401:                             )}
+1402:                           </div>
+1403:                         )}
+1404:                       </CardContent>
+1405:                     </Card>
+1406:                 ))}
+1407:               </div>
+1408:             )}
+1409:             </div>
+1410:           </div>
+1411:         )}
+1412:       </div>
+1413: 
+1414:       {/* "Shop Similar Products" Slider Section */}
+1415:       <div className="space-y-4 pt-8 border-t">
+1416:         <div className="flex items-center justify-between">
+1417:           <div>
+1418:             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+1419:               Shop Similar Products
+1420:             )}
+1421:             </div>
+1422:           </div>
+1423:         )}
+1424:       </div>
+1425: 
+1426:       {/* Amazon-Style Frequently Bought Together / Combo Products Section */}
+1427:       <div className="space-y-6 pt-8 border-t">
+1428:         <div className="flex items-center justify-between">
+1429:           <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+1430:             Frequently bought together
+1431:           </h2>
+1432:           <Badge variant="outline" className="text-xs font-bold text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-500/10">
+1433:             Combo Bundle Deal
+1434:           </Badge>
+1435:         </div>
+1436: 
+1437:         <div className="p-4 sm:p-6 rounded-2xl border bg-background shadow-xs space-y-6">
+1438:           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-6">
+1439:             {/* Left Items Row with Plus signs */}
+1440:             <div className="flex items-center gap-3 sm:gap-4 flex-wrap flex-1 min-w-0">
+1441:               {allComboItems.map((item, idx) => {
+1442:                 const isChecked = checkedComboIds.includes(item.id);
+1443:                 const isCurrentProduct = item.id === product.id;
+1444:                 const mrp = item.originalPrice || Math.round(item.price * 1.28);
+1445: 
+1446:                 return (
+1447:                   <div key={item.id} className="flex items-center gap-3 sm:gap-4">
+1448:                     {/* Item Card */}
+1449:                     <div className="flex flex-col gap-2 p-3 border rounded-xl bg-slate-50/50 dark:bg-slate-900/50 w-36 sm:w-48 shrink-0 transition-all hover:border-amber-500/50">
+1450:                       <div className="relative aspect-square overflow-hidden rounded-lg bg-background border">
+1451:                         <img
+1452:                           src={item.image}
+1453:                           alt={item.name}
+1454:                           className="h-full w-full object-cover"
+1455:                         />
+1456:                         <div className="absolute top-2 left-2 z-10">
+1457:                           <input
+1458:                             type="checkbox"
+1459:                             checked={isChecked}
+1460:                             onChange={() => toggleComboChecked(item.id)}
+1461:                             className="h-4 w-4 rounded accent-amber-500 cursor-pointer"
+1462:                           />
+1463:                         </div>
+1464:                       </div>
+1465: 
+1466:                       <div className="space-y-1">
+1467:                         <div className="text-[11px] font-bold text-muted-foreground truncate">
+1468:                           {isCurrentProduct ? "This item:" : item.category}
+1469:                         </div>
+1470:                         <Link href={`/products/${item.id}`}>
+1471:                           <h4 className="text-xs font-bold text-foreground line-clamp-2 hover:text-amber-600 transition-colors">
+1472:                             {item.name}
+1473:                           </h4>
+1474:                         </Link>
+1475:                         <div className="flex items-baseline gap-1.5 flex-wrap">
+1476:                           <span className="text-xs font-extrabold text-slate-900 dark:text-slate-100">
+1477:                             {formatCurrency(item.price)}
+1478:                           </span>
+1479:                           <span className="text-[10px] line-through text-muted-foreground">
+1480:                             {formatCurrency(mrp)}
+1481:                           </span>
+1482:                         </div>
+1483:                       </div>
+1484:                     </div>
+1485: 
+1486:                     {/* Plus separator icon */}
+1487:                     {idx < allComboItems.length - 1 && (
+1488:                       <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold shrink-0">
+1489:                         <Plus className="h-4 w-4" />
+1490:                       </div>
+1491:                     )}
+1492:                   </div>
+1493:                 );
+1494:               })}
+1495:             </div>
+1496: 
+1497:             {/* Right Summary & Add to Cart Box */}
+1498:             <div className="w-full lg:w-72 shrink-0 p-4 border rounded-xl bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/20 space-y-3 flex flex-col justify-between">
+1499:               <div>
+1500:                 <div className="text-xs text-muted-foreground font-medium">Total price:</div>
+1501:                 <div className="flex items-baseline gap-2 flex-wrap mt-0.5">
+1502:                   <span className="text-xl font-extrabold text-foreground">
+1503:                     {formatCurrency(comboTotalPrice)}
+1504:                   </span>
+1505:                   {comboOriginalPrice > comboTotalPrice && (
+1506:                     <span className="text-xs line-through text-muted-foreground font-medium">
+1507:                       {formatCurrency(comboOriginalPrice)}
+1508:                     </span>
+1509:                   )}
+1510:                 </div>
+1511:                 {comboOriginalPrice > comboTotalPrice && (
+1512:                   <div className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-1">
+1513:                     Save {formatCurrency(comboOriginalPrice - comboTotalPrice)} on this bundle
+1514:                   </div>
+1515:                 )}
+1516:               </div>
+1517: 
+1518:               <Button
+1519:                 onClick={handleAddComboToCart}
+1520:                 disabled={checkedComboIds.length === 0}
+1521:                 className="w-full h-10 font-bold text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl shadow-xs gap-1.5 cursor-pointer"
+1522:               >
+1523:                 <ShoppingBag className="h-4 w-4" />
+1524:                 <span>
+1525:                   {checkedComboIds.length === 2
+1526:                     ? "Add both to Cart"
+1527:                     : `Add all ${checkedComboIds.length} to Cart`}
+1528:                 </span>
+1529:               </Button>
+1530: 
+1531:               <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
+1532:                 <ShieldCheck className="h-4 w-4 text-amber-500 shrink-0" />
+1533:                 <span>These items are dispatched together in single combo shipping.</span>
+1534:               </div>
+1535:             </div>
+1536:           </div>
+1537:         </div>
+1538:       </div>
+1539: 
+1540:       {/* "Shop Similar Products" Slider Section */}
