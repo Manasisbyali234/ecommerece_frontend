@@ -49,16 +49,17 @@ const providerIcons: Record<string, typeof CreditCard> = {
 export default function PaymentsPage() {
   const [gateways, setGateways] = useState<ExtendedGateway[]>([]);
 
-  useEffect(() => {
-    api<{ items: Array<Record<string, unknown>> }>("/admin/payment-gateways")
-      .then(({ items }) => setGateways(items.map(mapGateway)))
-      .catch(() => toast.error("Unable to load payment gateways"));
-  }, []);
-
   function mapGateway(gateway: Record<string, unknown>): ExtendedGateway {
     const cfg = (gateway.config as Record<string, string>) || {};
     return { id: String(gateway.id), name: String(gateway.name), provider: String(gateway.provider), enabled: Boolean(gateway.enabled), mode: gateway.mode === "live" ? "live" : "test", fees: String(gateway.fees || ""), transactions30d: 0, volume30d: 0, publishableKey: cfg.publishableKey || cfg.keyId || "", secretKey: cfg.secretKey ? "configured" : "", webhookSecret: cfg.webhookSecret ? "configured" : "", merchantId: cfg.merchantId || "" };
   }
+
+  useEffect(() => {
+    api<{ items: Array<Record<string, unknown>> }>("/admin/payment-gateways")
+      .then(({ items }) => setGateways(items.map(mapGateway)))
+      .catch(() => toast.error("Unable to load payment gateways"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [selectedGateway, setSelectedGateway] = useState<ExtendedGateway | null>(null);
   const [openModal, setOpenModal] = useState(false);
