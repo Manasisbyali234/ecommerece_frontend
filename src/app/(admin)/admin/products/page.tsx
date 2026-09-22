@@ -173,7 +173,11 @@ function calculateDiscountPercent(cost: number, price: number) {
 export default function ProductsPage() {
   const navCategories = useStore((s) => s.navCategories);
   const [items, setItems] = useState<Product[]>([]);
-  useEffect(() => { api<{ items: Product[] }>("/admin/products").then(({ items: saved }) => setItems(saved)).catch(() => undefined); }, []);
+  useEffect(() => {
+    api<{ items: Product[] }>("/admin/products")
+      .then(({ items: saved }) => setItems(saved))
+      .catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load products"));
+  }, []);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -3527,10 +3531,6 @@ export default function ProductsPage() {
                 </div>
               </TabsContent>
               )}
-<<<<<<< HEAD
-
-=======
->>>>>>> acd28bcd71af7d95ea77537501b890380de09a11
             </div>
           </Tabs>
 

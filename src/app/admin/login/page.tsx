@@ -25,7 +25,7 @@ const MODULE_ROUTES: { permission: string; path: string }[] = [
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@store.local");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" value={email} type="email" onChange={(e) => setEmail(e.target.value)} required />
+              <Input id="email" value={email} type="email" autoComplete="email" onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -86,6 +86,7 @@ export default function AdminLoginPage() {
                   id="password"
                   value={password}
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="pr-10"

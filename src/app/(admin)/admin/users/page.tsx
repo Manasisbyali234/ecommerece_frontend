@@ -396,8 +396,10 @@ export default function AdminUsersPage() {
       store.updateRole(editingRoleId, payload);
       toast.success(`Role "${roleName}" updated live!`);
     } else {
-      await api("/admin/roles", { method: "POST", body: JSON.stringify({ name: payload.name, description: payload.description, permissions }) });
-      store.addRole(payload);
+      const { role } = await api<{ role: { id: string; name: string; description: string; isSuperAdmin: boolean } }>("/admin/roles", { method: "POST", body: JSON.stringify({ name: payload.name, description: payload.description, permissions }) });
+      // Keep the server-issued ObjectId; a temporary client id cannot be assigned
+      // to a subsequently-created admin account.
+      store.addRole({ ...payload, id: role.id, isSuperAdmin: role.isSuperAdmin } as Role);
       toast.success(`New Role "${roleName}" created!`);
     }
 

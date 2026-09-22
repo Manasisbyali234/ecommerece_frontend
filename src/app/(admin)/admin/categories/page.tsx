@@ -383,7 +383,7 @@ export default function AdminCategoriesPage() {
                     setDraft({
                       ...draft,
                       name: val,
-                      slug: draft.slug ? draft.slug : val.toLowerCase().replace(/\s+/g, "-"),
+                      slug: val.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
                     });
                   }}
                   className="pl-9 text-xs h-11 bg-muted/40 border-border/70 font-semibold"

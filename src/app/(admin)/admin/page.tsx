@@ -277,7 +277,7 @@ export default function AdminDashboardPage() {
   useEffect(() => { api<{ items: Product[] }>("/admin/products").then(({ items }) => setProducts(items)).catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load products")); }, []);
 
   // Timeline Filter State
-  const [timeline, setTimeline] = useState<TimelineFilter>("week");
+  const [timeline, setTimeline] = useState<TimelineFilter>("today");
 
   // Custom Selection States
   const [startDate, setStartDate] = useState("2026-08-01");
@@ -324,7 +324,7 @@ export default function AdminDashboardPage() {
       case "today":
         return "Today (24h Real-time)";
       case "week":
-        return "This Week (7 Days)";
+        return "Today (24h Real-time)";
       case "month":
         return "This Month (August 2026)";
       case "year":

@@ -356,17 +356,6 @@ export function StoreNavbar() {
               ) : (
                 <div className="flex items-center gap-1.5">
                   <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="h-9 px-3 gap-1.5 font-semibold text-xs hidden sm:flex"
-                  >
-                    <Link href="/account">
-                      <User className="h-4 w-4 text-primary" />
-                      <span>My Account</span>
-                    </Link>
-                  </Button>
-                  <Button
                     variant="default"
                     size="sm"
                     onClick={() => {
@@ -433,13 +422,11 @@ export function StoreNavbar() {
                 <p className="text-[11px] text-slate-300">Welcome to {headerConfig.logo?.text || "our Store"}</p>
               </div>
             </div>
-            <Link
-              href="/account"
-              onClick={() => setAllCategoriesDrawerOpen(false)}
-              className="shrink-0 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-400"
-            >
-              My Account
-            </Link>
+            {userLoggedIn ? (
+              <Link href="/account" onClick={() => setAllCategoriesDrawerOpen(false)} className="shrink-0 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-400">My Account</Link>
+            ) : (
+              <button onClick={() => { setAllCategoriesDrawerOpen(false); setOtpStep("mobile"); setLoginModalOpen(true); }} className="shrink-0 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-400">Login</button>
+            )}
           </div>
 
           <div className="p-4 space-y-6">

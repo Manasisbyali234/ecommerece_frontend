@@ -8,6 +8,7 @@ import { FloatingCartBar } from "@/components/store/floating-cart-bar";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StorefrontDataHydrator } from "@/components/store/storefront-data-hydrator";
 import { CustomerDataHydrator } from "@/components/store/customer-data-hydrator";
+import { MaintenanceGate } from "@/components/store/maintenance-gate";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function StoreLayout({
@@ -16,6 +17,7 @@ export default function StoreLayout({
   children: React.ReactNode;
 }) {
   return (
+    <MaintenanceGate>
     <CartProvider>
       <WishlistProvider>
         <StorefrontDataHydrator />
@@ -33,5 +35,6 @@ export default function StoreLayout({
         <Toaster />
       </WishlistProvider>
     </CartProvider>
+    </MaintenanceGate>
   );
 }

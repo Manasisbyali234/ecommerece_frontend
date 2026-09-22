@@ -101,12 +101,13 @@ export default function ProductDetailPage({ params }: PageProps) {
   const products = useProducts();
   const resolvedParams = use(params);
   const router = useRouter();
-  const { addItem, openCart } = useCart();
+  const { addItem, openCart, items: cartItems } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   // Find product by ID
   const product: Product =
     products.find((p) => p.id === resolvedParams.id) || loadingProduct;
+  const cartQuantity = cartItems.find((item) => item.product.id === product.id)?.quantity || 0;
 
   const galleryImages = (product.images && product.images.length > 0
     ? product.images
@@ -390,6 +391,11 @@ export default function ProductDetailPage({ params }: PageProps) {
       description: selectedColor || selectedSize ? `Variant: ${selectedColor} ${selectedSize}` : undefined,
     });
     openCart();
+  };
+
+  const handleCartAction = () => {
+    if (cartQuantity > 0) { openCart(); return; }
+    handleAddToCart();
   };
 
   const handleBuyNow = () => {
@@ -850,9 +856,9 @@ export default function ProductDetailPage({ params }: PageProps) {
                 size="lg"
                 variant="outline"
                 className="h-12 text-base font-semibold border-primary/50 hover:bg-primary/5"
-                onClick={handleAddToCart}
+                onClick={handleCartAction}
               >
-                <ShoppingBag className="mr-2 h-5 w-5 text-primary" /> Add to Cart
+                <ShoppingBag className="mr-2 h-5 w-5 text-primary" /> {cartQuantity > 0 ? `Go to Cart (${cartQuantity})` : "Add to Cart"}
               </Button>
 
               <Button

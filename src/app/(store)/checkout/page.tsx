@@ -264,7 +264,8 @@ export default function StorefrontCheckoutPage() {
           order_id: payment.orderId,
           name: "Metromindz",
           description: `Order ${order.orderNumber}`,
-          handler: async () => {
+          handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+            await api(`/orders/${order.id}/payment/confirm`, { method: "POST", body: JSON.stringify(response) });
             clearCart();
             await hydrateCustomerStore();
             toast.success(`Payment successful! Order ${order.orderNumber} confirmed.`);

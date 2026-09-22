@@ -44,8 +44,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-const CATEGORIES = ["Apparel", "Electronics", "Home", "Footwear", "Bags", "Audio"];
-
 function StatCard({
   label,
   value,
@@ -81,6 +79,7 @@ function StatCard({
 
 export default function AdminSubCategoriesPage() {
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -103,7 +102,7 @@ export default function AdminSubCategoriesPage() {
   const [quickImageUrl, setQuickImageUrl] = useState("");
   const quickFileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { api<{ items: Array<{ id: string; title: string; active: boolean; data: Omit<SubCategory, "id"> }> }>("/admin/content/sub-categories").then(({ items }) => setSubCategories(items.map((item) => ({ ...item.data, id: item.id, title: item.data.title || item.title, active: item.active })))).catch(() => toast.error("Unable to load saved subcategories")); }, []);
+  useEffect(() => { Promise.all([api<{ items: Array<{ id: string; title: string; active: boolean; data: Omit<SubCategory, "id"> }> }>("/admin/content/sub-categories"), api<{ items: Array<{ title: string; active: boolean; data: { name?: string } }> }>("/admin/content/categories")]).then(([subCategoryResult, categoryResult]) => { setSubCategories(subCategoryResult.items.map((item) => ({ ...item.data, id: item.id, title: item.data.title || item.title, active: item.active }))); setCategories(categoryResult.items.filter((item) => item.active).map((item) => item.data.name || item.title)); }).catch(() => toast.error("Unable to load saved categories")); }, []);
 
   const filteredItems = useMemo(() => {
     let result = subCategories;
@@ -270,7 +269,7 @@ export default function AdminSubCategoriesPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All Categories</SelectItem>
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat}
                 </SelectItem>
@@ -374,6 +373,15 @@ export default function AdminSubCategoriesPage() {
           </div>
 
           <div className="px-6 py-5 space-y-4">
+            {/* Target Store Category */}
+            <div className="space-y-1.5">
+              <Label htmlFor="sc-cat" className="text-xs font-bold">Target Store Category</Label>
+              <Select value={draft.category} onValueChange={(v) => setDraft({ ...draft, category: v })}>
+                <SelectTrigger id="sc-cat" className="h-9 text-xs bg-muted/40 border-border/70 font-semibold"><SelectValue /></SelectTrigger>
+                <SelectContent>{categories.map((cat) => <SelectItem key={cat} value={cat} className="text-xs font-semibold">{cat}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+
             {/* Sub Category Title */}
             <div className="space-y-1.5">
               <Label htmlFor="sc-title" className="text-xs font-bold">Sub Category Title <span className="text-red-500">*</span></Label>
@@ -402,26 +410,6 @@ export default function AdminSubCategoriesPage() {
                   className="pl-8 text-xs h-9 bg-muted/40 border-border/70 font-semibold"
                 />
               </div>
-            </div>
-
-            {/* Target Store Category */}
-            <div className="space-y-1.5">
-              <Label htmlFor="sc-cat" className="text-xs font-bold">Target Store Category</Label>
-              <Select
-                value={draft.category}
-                onValueChange={(v) => setDraft({ ...draft, category: v })}
-              >
-                <SelectTrigger id="sc-cat" className="h-9 text-xs bg-muted/40 border-border/70 font-semibold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat} className="text-xs font-semibold">
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             {/* Image Preview & Upload Controls */}

@@ -395,7 +395,7 @@ export default function AdminSidebarOptionsPage() {
 
       {/* Form Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md p-0 overflow-hidden border-muted/60">
+        <DialogContent className="max-h-[calc(100vh-2rem)] max-w-md overflow-y-auto p-0 border-muted/60">
           <div className="bg-gradient-to-r from-teal-500/15 via-teal-500/5 to-background p-6 border-b border-muted/40">
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Sliders className="h-5 w-5 text-teal-600" />

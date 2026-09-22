@@ -65,7 +65,11 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     clearAccessToken();
     if (typeof window !== "undefined") window.location.href = "/login";
   }
-  if (!response.ok) throw new Error(data.error || "Request failed");
+  if (!response.ok) {
+    const fields = data.details?.fieldErrors as Record<string, string[] | undefined> | undefined;
+    const detail = fields ? Object.entries(fields).find(([, messages]) => messages?.[0]) : undefined;
+    throw new Error(detail ? `${data.error || "Validation failed"}: ${detail[0]} ${detail[1]?.[0] || "is invalid"}` : (data.error || "Request failed"));
+  }
   return data as T;
 }
 

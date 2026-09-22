@@ -46,7 +46,7 @@ import { useWishlist } from "@/lib/wishlist-context";
 import { useCart } from "@/lib/cart-context";
 import { formatCurrency } from "@/lib/mock-data";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
-import { api, clearAccessToken } from "@/lib/api";
+import { api, clearAccessToken, getAccessToken } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -96,15 +96,20 @@ export default function CustomerAccountDashboardPage() {
   const companySettings = useStore((s) => s.companyInvoiceSettings);
   const { wishlistProducts, toggleWishlist, wishlistCount } = useWishlist();
   const { addItem, openCart } = useCart();
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null);
 
   const [activeTab, setActiveTab] = useState<"profile" | "orders" | "addresses" | "wishlist">("orders");
 
   // Refresh orders from backend every 30s so status changes by admin are reflected
   useEffect(() => {
-    hydrateCustomerStore().catch(() => undefined);
+    if (!getAccessToken()) { router.replace("/"); return; }
+    Promise.all([
+      hydrateCustomerStore(),
+      api<{ user: { hasPassword: boolean } }>("/me").then(({ user }) => setHasPassword(user.hasPassword)),
+    ]).catch(() => undefined);
     const interval = setInterval(() => hydrateCustomerStore().catch(() => undefined), 30_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [router]);
 
   // Order filters
   const [orderSearch, setOrderSearch] = useState("");
@@ -221,9 +226,9 @@ export default function CustomerAccountDashboardPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if ((hasPassword && !currentPassword) || !newPassword || !confirmPassword) {
       toast.error("All password fields are required.");
       return;
     }
@@ -235,10 +240,12 @@ export default function CustomerAccountDashboardPage() {
       toast.error("New password must be at least 8 characters long.");
       return;
     }
-    toast.success("Password updated successfully!");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      await api("/me/password", { method: "PUT", body: JSON.stringify({ currentPassword: hasPassword ? currentPassword : undefined, newPassword }) });
+      setHasPassword(true);
+      toast.success(hasPassword ? "Password updated successfully!" : "Password set successfully!");
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save password"); }
   };
 
   // Profile Save
@@ -957,8 +964,8 @@ export default function CustomerAccountDashboardPage() {
                   <CardContent className="p-6">
                     <form onSubmit={handlePasswordSubmit} className="space-y-4">
                       <div className="space-y-4 max-w-xl">
-                        {/* Current Password */}
-                        <div className="space-y-1.5">
+                        {/* OTP-only accounts set their first password without a fictional current password. */}
+                        {hasPassword && <div className="space-y-1.5">
                           <Label htmlFor="curr-pass" className="text-xs font-semibold">Current Password</Label>
                           <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -978,7 +985,7 @@ export default function CustomerAccountDashboardPage() {
                               {showCurrentPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                             </button>
                           </div>
-                        </div>
+                        </div>}
 
                         {/* New Password */}
                         <div className="space-y-1.5">

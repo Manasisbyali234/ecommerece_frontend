@@ -533,9 +533,6 @@ function OrdersContent() {
                     </div>
                   </div>
                   <div className="flex justify-between border-b pb-1.5 items-center"><span className="text-muted-foreground">Fulfillment Status</span><Badge variant="outline" className={`text-[10px] font-bold ${statusColor[selected.status]}`}>{selected.status}</Badge></div>
-<<<<<<< HEAD
-                  <div className="flex justify-between items-center"><span className="text-muted-foreground">Shipping Courier</span><span className="font-mono font-bold text-blue-600">{selected.paymentMethod || "—"}</span></div>
-=======
                   {selected.paymentProvider === "razorpay" && (
                     <>
                       {selected.razorpayOrderId && selected.razorpayOrderId !== "" && (
@@ -553,9 +550,8 @@ function OrdersContent() {
                     </>
                   )}
                   {(!selected.paymentProvider || selected.paymentProvider !== "razorpay") && (
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Shipping Courier</span><span className="font-mono font-bold text-blue-600">Delhivery Express</span></div>
+                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Payment Method</span><span className="font-mono font-bold text-blue-600">{selected.paymentMethod || "—"}</span></div>
                   )}
->>>>>>> acd28bcd71af7d95ea77537501b890380de09a11
                 </div>
               </div>
 

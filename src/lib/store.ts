@@ -1118,8 +1118,16 @@ function slugify(value: string) { return value.toLowerCase().trim().replace(/[^a
 function persistContent(type: string, data: Record<string, unknown>, id?: string, remove = false) {
   const path = `/admin/content/${type}${id ? `/${id}` : ""}`;
   if (remove) { api(path, { method: "DELETE" }).catch(() => undefined); return; }
-  const title = String(data.title || data.name || data.label || "Untitled");
-  api(path, { method: id ? "PATCH" : "POST", body: JSON.stringify({ title, slug: String(data.slug || slugify(title)), active: data.active !== false, data }) }).catch(() => undefined);
+  // PATCHes are partial. Sending an omitted title/label used to overwrite it with
+  // "Untitled" when a switch only changed `active`.
+  const title = data.title ?? data.name ?? data.label;
+  const payload: Record<string, unknown> = { data };
+  if (title !== undefined) {
+    payload.title = String(title);
+    payload.slug = String(data.slug || slugify(String(title)));
+  }
+  if (data.active !== undefined) payload.active = data.active;
+  api(path, { method: id ? "PATCH" : "POST", body: JSON.stringify(payload) }).catch(() => undefined);
 }
 
 
@@ -1169,13 +1177,8 @@ export async function hydrateAdminStore() {
   ]);
   state = {
     ...state, coupons,
-<<<<<<< HEAD
-    orders: orders.map((order) => ({ id: String(order.id), customer: String((order.customer as Record<string, unknown>)?.fullName || "Customer"), email: String((order.customer as Record<string, unknown>)?.email || ""), total: Number(order.total || 0), items: Array.isArray(order.items) ? order.items.map((item) => { const line = item as Record<string, unknown>; return { id: String(line.product || line.id || ""), title: String(line.name || "Product"), price: Number(line.unitPrice || line.price || 0), qty: Number(line.quantity || line.qty || 1), image: String(line.image || "") }; }) : 0, status: order.status as Order["status"], paymentStatus: order.paymentStatus as Order["paymentStatus"], paymentMethod: String(order.paymentMethod || ""), date: String(order.createdAt || "").slice(0, 10) })),
-    invoices: invoices.map((invoice) => { const orderDoc = invoice.order as Record<string, unknown> | null; const customerDoc = orderDoc?.customer as Record<string, unknown> | undefined; return { id: String(invoice.id), orderId: String(orderDoc?.id || invoice.order || ""), customer: String(customerDoc?.fullName || (invoice.customer as Record<string, unknown>)?.fullName || "Customer"), amount: Number(invoice.amount || 0), status: invoice.status as Invoice["status"], issued: String(invoice.issuedAt || "").slice(0, 10), due: String(invoice.dueAt || "").slice(0, 10) }; }),
-=======
     orders: orders.map((order) => { const pay = (order.payment || {}) as Record<string, unknown>; return { id: String(order.id), orderNumber: String(order.orderNumber || ""), customer: String((order.customer as Record<string, unknown>)?.fullName || "Customer"), email: String((order.customer as Record<string, unknown>)?.email || ""), total: Number(order.total || 0), items: Array.isArray(order.items) ? order.items.map((item) => { const line = item as Record<string, unknown>; return { id: String(line.product || line.id || ""), title: String(line.name || "Product"), price: Number(line.unitPrice || line.price || 0), qty: Number(line.quantity || line.qty || 1), image: String(line.image || "") }; }) : 0, status: order.status as Order["status"], paymentStatus: order.paymentStatus as Order["paymentStatus"], paymentMethod: String(order.paymentMethod || ""), paymentProvider: String(pay.provider || ""), razorpayOrderId: String(pay.providerOrderId || ""), razorpayPaymentId: String(pay.providerPaymentId || ""), date: String(order.createdAt || "").slice(0, 10) }; }),
-    invoices: invoices.map((invoice) => ({ id: String(invoice.id), orderId: String((invoice.order as Record<string, unknown>)?.id || invoice.order || ""), customer: "Customer", amount: Number(invoice.amount || 0), status: invoice.status as Invoice["status"], issued: String(invoice.issuedAt || "").slice(0, 10), due: String(invoice.dueAt || "").slice(0, 10) })),
->>>>>>> acd28bcd71af7d95ea77537501b890380de09a11
+    invoices: invoices.map((invoice) => { const orderDoc = invoice.order as Record<string, unknown> | null; const customerDoc = orderDoc?.customer as Record<string, unknown> | undefined; return { id: String(invoice.id), orderId: String(orderDoc?.id || invoice.order || ""), customer: String(customerDoc?.fullName || (invoice.customer as Record<string, unknown>)?.fullName || "Customer"), amount: Number(invoice.amount || 0), status: invoice.status as Invoice["status"], issued: String(invoice.issuedAt || "").slice(0, 10), due: String(invoice.dueAt || "").slice(0, 10) }; }),
     categories: categories.map((item) => ({ ...fromContent(item), name: item.data.name || item.title })), subCategories: subCategories.map(fromContent), banners: banners.map(fromContent), navCategories: navCategories.map((item) => ({ ...fromContent(item), name: item.data.name || item.title, categories: item.data.categories ?? [] })), sidebarOptions: sidebarOptions.map((item) => ({ ...fromContent(item), label: item.data.label || item.title })), customerTiers: customerTiers.map(fromContent),
     headerConfig: Object.keys(header || {}).length ? header : state.headerConfig, footerConfig: Object.keys(footer || {}).length ? footer : state.footerConfig, themeConfig: Object.keys(theme || {}).length ? theme : state.themeConfig, faviconConfig: Object.keys(favicon || {}).length ? favicon : state.faviconConfig,
   };
@@ -1394,7 +1397,7 @@ export const store = {
       opt.id === id ? { ...opt, ...patch } : opt
     );
     emit();
-    persistContent("sidebar-options", { ...patch, title: patch.label }, id);
+    persistContent("sidebar-options", patch, id);
   },
 
   removeSidebarOption(id: string) {
@@ -1424,8 +1427,8 @@ export const store = {
     emit();
   },
 
-  addRole(r: Omit<Role, "id">) {
-    const id = `role-${Date.now()}`;
+  addRole(r: Omit<Role, "id"> & Partial<Pick<Role, "id">>) {
+    const id = r.id || `role-${Date.now()}`;
     state.roles = [{ ...r, id }, ...state.roles];
     emit();
   },
