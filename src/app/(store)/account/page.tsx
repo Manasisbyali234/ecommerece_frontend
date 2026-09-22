@@ -955,13 +955,16 @@ export default function CustomerAccountDashboardPage() {
                           <KeyRound className="h-4 w-4 text-white" />
                         </div>
                         <div>
-                          <CardTitle className="text-sm font-bold text-white">Security & Password</CardTitle>
-                          <p className="text-[10px] text-white/70 mt-0.5">Keep your account secure by regularly updating your password</p>
+                          <CardTitle className="text-sm font-bold text-white">{hasPassword ? "Change Password" : "Set a Password"}</CardTitle>
+                          <p className="text-[10px] text-white/70 mt-0.5">{hasPassword ? "Keep your account secure by regularly updating your password" : "You signed in with OTP. Set a password to also log in with email & password."}</p>
                         </div>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6">
+                    {hasPassword === null ? (
+                      <p className="text-xs text-muted-foreground">Loading...</p>
+                    ) : (
                     <form onSubmit={handlePasswordSubmit} className="space-y-4">
                       <div className="space-y-4 max-w-xl">
                         {/* OTP-only accounts set their first password without a fictional current password. */}
@@ -1071,11 +1074,12 @@ export default function CustomerAccountDashboardPage() {
                             size="sm"
                             className="h-8 text-xs font-bold gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs"
                           >
-                            <KeyRound className="h-3.5 w-3.5" /> Update Password
+                            <KeyRound className="h-3.5 w-3.5" /> {hasPassword ? "Update Password" : "Set Password"}
                           </Button>
                         </div>
                       </div>
                     </form>
+                    )}
                   </CardContent>
                 </Card>
               </div>

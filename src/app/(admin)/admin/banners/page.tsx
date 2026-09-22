@@ -621,7 +621,33 @@ export default function AdminBannersPage() {
                   <span className="text-[11px] font-medium text-foreground">Multi-Small Banners Collage</span>
                 </button>
               </div>
-            </div>            {/* Collage Grid Settings (WHEN layout === "collage") */}
+            </div>
+
+            {/* Banner Width & Height */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Banner Width (px)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 1600"
+                  value={draft.bannerWidth ?? ""}
+                  onChange={(e) => setDraft({ ...draft, bannerWidth: e.target.value ? Number(e.target.value) : undefined })}
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Banner Height (px)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 500"
+                  value={draft.bannerHeight ?? ""}
+                  onChange={(e) => setDraft({ ...draft, bannerHeight: e.target.value ? Number(e.target.value) : undefined })}
+                  className="h-9 text-xs"
+                />
+              </div>
+            </div>
+
+            {/* Collage Grid Settings (WHEN layout === "collage") */}
             {draft.layout === "collage" && (
               <div className="space-y-4 pt-4 border-t">
                 {/* Live Interactive Preview Card for Banner Collage Grid */}

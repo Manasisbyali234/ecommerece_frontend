@@ -445,7 +445,12 @@ export default function ProductsPage() {
 
     const slug = (formData.name || "product").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const comboDeals = fieldRules.showComboProducts ? (formData.comboDeals || []) : [];
-    const payload = { name: formData.name, slug, sku: formData.sku, category: formData.category || defaultCategory, subCategory: formData.subCategory || undefined, brand: formData.brand, gender: formData.gender, costPrice: Number(formData.costPrice) || 0, discountPercent: Number(formData.discountPercent) || 0, price: Number(formData.price) || 0, originalPrice: Number(formData.originalPrice) || 0, stock: Number(formData.stock) || 0, status: formData.status || "active", image: formData.image || "", images: formData.images || [], description: formData.description, features: parsedFeatures, specs: formData.specs || {}, colors: formData.colors || [], sizes: formData.sizes || [], tags: formData.tags || [], codAvailable: formData.codAvailable ?? true, returnAvailable: formData.returnAvailable ?? true, exchangeAvailable: formData.exchangeAvailable ?? true, warrantyPeriod: formData.warrantyPeriod, comboDealAvailable: fieldRules.showComboProducts ? (formData.comboDealAvailable ?? true) : false, comboDeals, comboProductIds: uniq(comboDeals.flatMap((deal) => deal.productIds || [])) };
+        if (!formData.image) {
+      toast.error("Please add a primary cover image for this product");
+      setActiveTab("media");
+      return;
+    }
+    const payload = { name: formData.name, slug, sku: formData.sku, category: formData.category || defaultCategory, subCategory: formData.subCategory || undefined, brand: formData.brand, gender: formData.gender, costPrice: Number(formData.costPrice) || 0, discountPercent: Number(formData.discountPercent) || 0, price: Number(formData.price) || 0, originalPrice: Number(formData.originalPrice) || 0, stock: Number(formData.stock) || 0, status: formData.status || "active", image: formData.image, images: formData.images || [], description: formData.description, features: parsedFeatures, specs: formData.specs || {}, colors: formData.colors || [], sizes: formData.sizes || [], tags: formData.tags || [], codAvailable: formData.codAvailable ?? true, returnAvailable: formData.returnAvailable ?? true, exchangeAvailable: formData.exchangeAvailable ?? true, warrantyPeriod: formData.warrantyPeriod, comboDealAvailable: fieldRules.showComboProducts ? (formData.comboDealAvailable ?? true) : false, comboDeals, comboProductIds: uniq(comboDeals.flatMap((deal) => deal.productIds || [])) };
     try { if (editingId) {
       // Update existing
       await api(`/admin/products/${editingId}`, { method: "PATCH", body: JSON.stringify(payload) });
@@ -525,7 +530,11 @@ export default function ProductsPage() {
     }
 
     setOpenModal(false);
-    } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save product"); }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Unable to save product";
+      toast.error(msg);
+      if (msg.toLowerCase().includes("image")) setActiveTab("media");
+    }
   };
 
   // Delete Product

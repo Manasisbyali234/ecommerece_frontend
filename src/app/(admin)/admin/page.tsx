@@ -798,7 +798,7 @@ export default function AdminDashboardPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setTimeline("week")}
+                  onClick={() => setTimeline("today")}
                   className="h-8 text-xs font-bold text-rose-500 hover:text-rose-600 gap-1"
                 >
                   <RotateCcw className="h-3.5 w-3.5" /> Reset

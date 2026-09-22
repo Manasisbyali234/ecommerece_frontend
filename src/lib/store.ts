@@ -86,6 +86,8 @@ export type Banner = {
   titleStyle?: TypographyStyle;
   subtitleStyle?: TypographyStyle;
   bodyStyle?: TypographyStyle;
+  bannerWidth?: number;
+  bannerHeight?: number;
   active: boolean;
   starts: string;
   ends: string;
@@ -1397,7 +1399,8 @@ export const store = {
       opt.id === id ? { ...opt, ...patch } : opt
     );
     emit();
-    persistContent("sidebar-options", patch, id);
+    const merged = state.sidebarOptions.find((opt) => opt.id === id);
+    persistContent("sidebar-options", { ...patch, label: merged?.label ?? patch.label }, id);
   },
 
   removeSidebarOption(id: string) {

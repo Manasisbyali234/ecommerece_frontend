@@ -63,7 +63,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   const data = await response.json().catch(() => ({}));
   if (response.status === 401) {
     clearAccessToken();
-    if (typeof window !== "undefined") window.location.href = "/login";
+    if (typeof window !== "undefined" && !window.location.pathname.endsWith("/login")) window.location.href = "/login";
   }
   if (!response.ok) {
     const fields = data.details?.fieldErrors as Record<string, string[] | undefined> | undefined;

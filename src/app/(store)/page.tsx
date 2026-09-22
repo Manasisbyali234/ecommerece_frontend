@@ -73,6 +73,7 @@ function StoreHomeContent() {
 
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
+  const [brandsList, setBrandsList] = useState<Array<{ id: string; name: string; logo: string; active: boolean; featured: boolean }>>([]);
   const [contentLoadError, setContentLoadError] = useState(false);
   const categoryDeals = useMemo(
     () => categoriesList.filter((category) => category.name !== "All" && Boolean(category.image)),
@@ -84,6 +85,9 @@ function StoreHomeContent() {
     api<{ items: Array<{ id: string; title: string; active: boolean; data: Omit<CategoryItem, "id"> }> }>("/content/categories")
       .then(({ items }) => { setCategoriesList(items.map((item) => ({ ...item.data, id: item.id, name: item.data.name || item.title, active: item.active }))); setContentLoadError(false); })
       .catch(() => { setCategoriesList([]); setContentLoadError(true); });
+    api<{ items: Array<{ id: string; title: string; active: boolean; data: { name: string; logo: string; featured: boolean } }> }>("/content/brands")
+      .then(({ items }) => setBrandsList(items.filter((item) => item.active).map((item) => ({ id: item.id, name: item.data?.name || item.title, logo: item.data?.logo || "", active: item.active, featured: item.data?.featured || false }))))
+      .catch(() => setBrandsList([]));
     api<{ items: Array<{ id: string; title: string; active: boolean; data: Omit<SubCategory, "id"> }> }>("/content/sub-categories")
       .then(({ items }) => setSubCategories(items.map((item) => ({ ...item.data, id: item.id, title: item.data.title || item.title, active: item.active }))))
       .catch(() => setSubCategories([]));
@@ -718,6 +722,19 @@ function StoreHomeContent() {
             </Link>
           </Button>
         </div>
+
+        {/* Brand Logo Pills */}
+        {brandsList.length > 0 && (
+          <div className="flex flex-wrap gap-3 pb-2">
+            {brandsList.map((brand) => (
+              <div key={brand.id} className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 shadow-sm">
+                {brand.logo && <img src={brand.logo} alt={brand.name} className="h-6 w-6 rounded-full object-cover border" />}
+                <span className="text-xs font-bold text-foreground">{brand.name}</span>
+                {brand.featured && <span className="text-[10px] font-bold text-amber-500">★</span>}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* 2 Product Card Rows (5 per row = 10 products total) */}
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">

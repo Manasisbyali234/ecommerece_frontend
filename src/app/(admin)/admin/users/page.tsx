@@ -105,6 +105,7 @@ export default function AdminUsersPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Role Edit/Create Modal State
   const [roleModalOpen, setRoleModalOpen] = useState(false);
@@ -148,12 +149,15 @@ export default function AdminUsersPage() {
   }, [users, roles]);
 
   // USER ACTIONS
+  const isValidObjectId = (id: string) => /^[a-f\d]{24}$/i.test(id);
+
   const startCreateUser = () => {
     setEditingUserId(null);
+    const validRoles = roles.filter((r) => isValidObjectId(r.id) && !r.isSuperAdmin);
     setUserDraft({
       name: "",
       email: "",
-      roleId: roles[1]?.id || roles[0]?.id || "role-superadmin",
+      roleId: validRoles[0]?.id || "",
       status: "active",
       lastLogin: "Never",
     });
@@ -163,6 +167,7 @@ export default function AdminUsersPage() {
     setShowConfirmPassword(false);
     setSendInviteEmail(true);
     setEnforce2FA(false);
+    setFieldErrors({});
     setUserModalOpen(true);
   };
 
@@ -181,28 +186,30 @@ export default function AdminUsersPage() {
     setShowConfirmPassword(false);
     setSendInviteEmail(false);
     setEnforce2FA(false);
+    setFieldErrors({});
     setUserModalOpen(true);
   };
 
   const saveUser = async () => {
-    if (!userDraft.name.trim() || !userDraft.email.trim()) {
-      toast.error("User Name and Email are required");
-      return;
-    }
-    if (!userDraft.email.includes("@")) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
+    const errors: Record<string, string> = {};
+    if (!userDraft.name.trim()) errors.name = "Full name is required";
+    if (!userDraft.email.trim()) errors.email = "Email address is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userDraft.email)) errors.email = "Enter a valid email address";
     if (!editingUserId) {
-      if (!password) { toast.error("Password is required"); return; }
-      if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
-      if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-        toast.error("Password must contain at least one uppercase letter and one number");
-        return;
-      }
-      if (password !== confirmPassword) { toast.error("Passwords do not match"); return; }
+      if (!password) errors.password = "Password is required";
+      else if (password.length < 8) errors.password = "Minimum 8 characters required";
+      else if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) errors.password = "Must contain at least one uppercase letter and one number";
+      if (!confirmPassword) errors.confirmPassword = "Please confirm your password";
+      else if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
+    } else if (password) {
+      if (password.length < 8) errors.password = "Minimum 8 characters required";
+      else if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
     }
-    if (!userDraft.roleId) { toast.error("Assigned Permission Role is required"); return; }
+    if (!userDraft.roleId) errors.roleId = "Permission role is required";
+    else if (!/^[a-f\d]{24}$/i.test(userDraft.roleId)) errors.roleId = "Selected role is not yet synced from server — please wait a moment and try again";
+    else if (roles.find((r) => r.id === userDraft.roleId)?.isSuperAdmin) errors.roleId = "Cannot assign Super Admin role to additional users";
+    if (Object.keys(errors).length > 0) { setFieldErrors(errors); return; }
+    setFieldErrors({});
 
     try {
     if (editingUserId) {
@@ -603,11 +610,16 @@ export default function AdminUsersPage() {
                     {!isSuper ? (
                       <Switch
                         checked={user.status === "active"}
-                        onCheckedChange={() =>
-                          store.updateAdminUser(user.id, {
-                            status: user.status === "active" ? "inactive" : "active",
-                          })
-                        }
+                        onCheckedChange={async () => {
+                          const newStatus = user.status === "active" ? "inactive" : "active";
+                          store.updateAdminUser(user.id, { status: newStatus });
+                          try {
+                            await api(`/admin/users/${user.id}`, { method: "PATCH", body: JSON.stringify({ status: newStatus === "active" ? "active" : "disabled" }) });
+                          } catch (error) {
+                            store.updateAdminUser(user.id, { status: user.status });
+                            toast.error(error instanceof Error ? error.message : "Unable to update user status");
+                          }
+                        }}
                         className="scale-75"
                       />
                     ) : (
@@ -964,9 +976,10 @@ export default function AdminUsersPage() {
                 <Input
                   placeholder="e.g. Aakash Sharma"
                   value={userDraft.name}
-                  onChange={(e) => setUserDraft({ ...userDraft, name: e.target.value })}
-                  className="text-xs"
+                  onChange={(e) => { setUserDraft({ ...userDraft, name: e.target.value }); setFieldErrors((p) => ({ ...p, name: "" })); }}
+                  className={`text-xs ${fieldErrors.name ? "border-rose-500 focus-visible:ring-rose-500" : ""}`}
                 />
+                {fieldErrors.name && <p className="text-[11px] text-rose-500 font-semibold">{fieldErrors.name}</p>}
               </div>
 
               <div className="space-y-1">
@@ -977,10 +990,11 @@ export default function AdminUsersPage() {
                   type="email"
                   placeholder="e.g. admin@store.local"
                   value={userDraft.email}
-                  onChange={(e) => setUserDraft({ ...userDraft, email: e.target.value })}
+                  onChange={(e) => { setUserDraft({ ...userDraft, email: e.target.value }); setFieldErrors((p) => ({ ...p, email: "" })); }}
                   disabled={!!editingUserId}
-                  className="text-xs font-mono"
+                  className={`text-xs font-mono ${fieldErrors.email ? "border-rose-500 focus-visible:ring-rose-500" : ""}`}
                 />
+                {fieldErrors.email && <p className="text-[11px] text-rose-500 font-semibold">{fieldErrors.email}</p>}
               </div>
 
               {/* Password fields */}
@@ -993,13 +1007,14 @@ export default function AdminUsersPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder={editingUserId ? "Leave blank to keep current password" : "Min 8 chars, 1 uppercase, 1 number"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="text-xs pr-9"
+                    onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: "" })); }}
+                    className={`text-xs pr-9 ${fieldErrors.password ? "border-rose-500 focus-visible:ring-rose-500" : ""}`}
                   />
                   <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
                     {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </button>
                 </div>
+                {fieldErrors.password && <p className="text-[11px] text-rose-500 font-semibold">{fieldErrors.password}</p>}
               </div>
 
               <div className="space-y-1">
@@ -1011,17 +1026,17 @@ export default function AdminUsersPage() {
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Re-enter password"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`text-xs pr-9 ${confirmPassword && password !== confirmPassword ? "border-rose-500 focus-visible:ring-rose-500" : confirmPassword && password === confirmPassword ? "border-emerald-500" : ""}`}
+                    onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors((p) => ({ ...p, confirmPassword: "" })); }}
+                    className={`text-xs pr-9 ${fieldErrors.confirmPassword || (confirmPassword && password !== confirmPassword) ? "border-rose-500 focus-visible:ring-rose-500" : confirmPassword && password === confirmPassword ? "border-emerald-500" : ""}`}
                   />
                   <button type="button" onClick={() => setShowConfirmPassword((v) => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
                     {showConfirmPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </button>
                 </div>
-                {confirmPassword && password !== confirmPassword && (
-                  <p className="text-[11px] text-rose-500 font-semibold">Passwords do not match</p>
+                {(fieldErrors.confirmPassword || (confirmPassword && password !== confirmPassword)) && (
+                  <p className="text-[11px] text-rose-500 font-semibold">{fieldErrors.confirmPassword || "Passwords do not match"}</p>
                 )}
-                {confirmPassword && password === confirmPassword && (
+                {!fieldErrors.confirmPassword && confirmPassword && password === confirmPassword && (
                   <p className="text-[11px] text-emerald-500 font-semibold">Passwords match ✓</p>
                 )}
               </div>
@@ -1036,13 +1051,17 @@ export default function AdminUsersPage() {
                 >
                   <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {roles.map((r) => (
+                    {roles.filter((r) => isValidObjectId(r.id) && !r.isSuperAdmin).length === 0 && (
+                      <SelectItem value="" disabled>Loading roles from server...</SelectItem>
+                    )}
+                    {roles.filter((r) => isValidObjectId(r.id) && !r.isSuperAdmin).map((r) => (
                       <SelectItem key={r.id} value={r.id}>
-                        {r.name} {r.isSuperAdmin ? "(Super Admin Master)" : ""}
+                        {r.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {fieldErrors.roleId && <p className="text-[11px] text-rose-500 font-semibold">{fieldErrors.roleId}</p>}
                 {selectedRoleDetails && (
                   <p className="text-[11px] text-muted-foreground italic pt-0.5">
                     {selectedRoleDetails.description}
