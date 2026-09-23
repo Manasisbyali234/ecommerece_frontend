@@ -2597,7 +2597,7 @@ export default function ProductsPage() {
 
                                 <div className="space-y-3">
                                   {sec.content.items?.map((item, itemIdx) => (
-                                    <div key={itemIdx} className="p-3 rounded-lg border bg-muted/20 space-y-2 relative">
+                                    <div key={itemIdx} className="p-3 pt-8 rounded-lg border bg-muted/20 space-y-2 relative">
                                       <button
                                         type="button"
                                         onClick={() => {
@@ -2607,7 +2607,8 @@ export default function ProductsPage() {
                                           list[idx] = { ...list[idx], content: { ...list[idx].content, items: current } };
                                           updateAboutSections(list);
                                         }}
-                                        className="absolute top-2 right-2 text-slate-400 hover:text-rose-500"
+                                        className="absolute top-2 right-2 h-5 w-5 flex items-center justify-center rounded text-black hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                                        title="Remove Highlight"
                                       >
                                         <X className="h-3.5 w-3.5" />
                                       </button>

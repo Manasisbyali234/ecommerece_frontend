@@ -74,6 +74,7 @@ export default function CouponsPage() {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Coupon | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Coupon | null>(null);
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -89,6 +90,7 @@ export default function CouponsPage() {
     expires: "2026-12-31",
     active: true,
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const filtered = useMemo(() => {
     return coupons.filter((c) => {
@@ -113,9 +115,11 @@ export default function CouponsPage() {
     if (c) store.updateCoupon(id, { active: !c.active });
   };
 
-  const remove = (id: string) => {
-    store.removeCoupon(id);
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    store.removeCoupon(deleteTarget.id);
     toast.error("Coupon code deleted");
+    setDeleteTarget(null);
   };
 
   const copyCode = (code: string) => {
@@ -134,6 +138,20 @@ export default function CouponsPage() {
       toast.error("Coupon code is required");
       return;
     }
+    if (editTarget.code.trim().length < 3) {
+      toast.error("Coupon code must be at least 3 characters");
+      return;
+    }
+    if (editTarget.code.trim().length > 20) {
+      toast.error("Coupon code must be at most 20 characters");
+      return;
+    }
+    const newCode = editTarget.code.trim().toUpperCase();
+    const duplicate = coupons.find((x) => x.code === newCode && x.id !== editTarget.id);
+    if (duplicate) {
+      toast.error(`Coupon code "${newCode}" already exists`);
+      return;
+    }
     store.updateCoupon(editTarget.id, {
       code: editTarget.code.toUpperCase(),
       description: editTarget.description,
@@ -150,14 +168,29 @@ export default function CouponsPage() {
     toast.success("Coupon updated successfully!");
   };
 
+  const validateDraft = () => {
+    const e: Record<string, string> = {};
+    if (!draft.code.trim()) e.code = "Coupon code is required";
+    else if (draft.code.trim().length < 3) e.code = "Minimum 3 characters required";
+    else if (draft.code.trim().length > 20) e.code = "Maximum 20 characters allowed";
+    else if (coupons.find((x) => x.code === draft.code.trim().toUpperCase())) e.code = "This coupon code already exists";
+    if (!draft.description.trim()) e.description = "Description is required";
+    if (["percentage", "fixed"].includes(draft.type) && (!draft.value || draft.value <= 0)) e.value = "Value must be greater than 0";
+    if (draft.type === "percentage" && draft.value > 100) e.value = "Percentage cannot exceed 100";
+    if (draft.minSpend < 0) e.minSpend = "Min spend cannot be negative";
+    if (!draft.usageLimit || draft.usageLimit <= 0) e.usageLimit = "Usage limit must be greater than 0";
+    if (!draft.expires) e.expires = "Expiry date is required";
+    else if (new Date(draft.expires) <= new Date()) e.expires = "Expiry date must be in the future";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
   const create = () => {
-    if (!draft.code.trim()) {
-      toast.error("Coupon code is required");
-      return;
-    }
+    if (!validateDraft()) return;
     const id = `c${Date.now()}`;
     store.addCoupon({ ...draft, id, code: draft.code.toUpperCase(), used: 0 });
     setOpen(false);
+    setErrors({});
     setDraft({ ...draft, code: "", description: "" });
     toast.success("Coupon rule published successfully!");
   };
@@ -212,6 +245,27 @@ export default function CouponsPage() {
           </p>
         </div>
 
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+          <DialogContent className="max-w-sm p-6">
+            <DialogHeader>
+              <DialogTitle className="text-base font-extrabold">Delete Coupon?</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Are you sure you want to delete coupon{" "}
+                <code className="font-mono font-bold text-foreground">{deleteTarget?.code}</code>? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="pt-3 gap-2">
+              <Button variant="outline" onClick={() => setDeleteTarget(null)} className="text-xs font-semibold">
+                No, Cancel
+              </Button>
+              <Button onClick={confirmDelete} className="text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white">
+                Yes, Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Edit Dialog */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogContent className="max-w-lg p-6">
@@ -232,7 +286,9 @@ export default function CouponsPage() {
                       placeholder="e.g. METRO500"
                       className="uppercase font-mono font-bold"
                       value={editTarget.code}
-                      onChange={(e) => setEditTarget({ ...editTarget, code: e.target.value })}
+                      minLength={3}
+                      maxLength={20}
+                      onChange={(e) => setEditTarget({ ...editTarget, code: e.target.value.replace(/[^A-Za-z0-9_-]/g, "") })}
                     />
                   </div>
                   <div className="space-y-1">
@@ -302,11 +358,15 @@ export default function CouponsPage() {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs font-bold">Expiry Date</Label>
-                    <Input
-                      type="date"
-                      value={editTarget.expires}
-                      onChange={(e) => setEditTarget({ ...editTarget, expires: e.target.value })}
-                    />
+                    <div className="relative">
+                      <Input
+                        type="date"
+                        value={editTarget.expires}
+                        onChange={(e) => setEditTarget({ ...editTarget, expires: e.target.value })}
+                        className="cursor-pointer"
+                        onClick={(e) => (e.target as HTMLInputElement).showPicker()}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-xl border p-3 bg-muted/20">
@@ -341,7 +401,7 @@ export default function CouponsPage() {
             <Download className="h-4 w-4 text-white" /> Export CSV
           </Button>
 
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setErrors({}); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="text-xs font-bold gap-1.5 h-9 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs">
                 <Plus className="h-4 w-4" /> Create Coupon
@@ -363,10 +423,13 @@ export default function CouponsPage() {
                     <Input
                       id="code"
                       placeholder="e.g. METRO500"
-                      className="uppercase font-mono font-bold"
+                      className={`uppercase font-mono font-bold ${errors.code ? "border-rose-500" : ""}`}
                       value={draft.code}
-                      onChange={(e) => setDraft({ ...draft, code: e.target.value })}
+                      minLength={3}
+                      maxLength={20}
+                      onChange={(e) => { setDraft({ ...draft, code: e.target.value.replace(/[^A-Za-z0-9_-]/g, "") }); setErrors((p) => ({ ...p, code: "" })); }}
                     />
+                    {errors.code && <p className="text-[11px] text-rose-500">{errors.code}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs font-bold">Discount Type</Label>
@@ -386,13 +449,15 @@ export default function CouponsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="desc" className="text-xs font-bold">Promotion Description</Label>
+                  <Label htmlFor="desc" className="text-xs font-bold">Promotion Description *</Label>
                   <Input
                     id="desc"
                     placeholder="e.g. Flat ₹500 OFF on orders above ₹1,999"
+                    className={errors.description ? "border-rose-500" : ""}
                     value={draft.description}
-                    onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                    onChange={(e) => { setDraft({ ...draft, description: e.target.value }); setErrors((p) => ({ ...p, description: "" })); }}
                   />
+                  {errors.description && <p className="text-[11px] text-rose-500">{errors.description}</p>}
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
@@ -401,27 +466,33 @@ export default function CouponsPage() {
                     <Input
                       id="value"
                       type="number"
+                      className={errors.value ? "border-rose-500" : ""}
                       value={draft.value}
-                      onChange={(e) => setDraft({ ...draft, value: Number(e.target.value) })}
+                      onChange={(e) => { setDraft({ ...draft, value: Number(e.target.value) }); setErrors((p) => ({ ...p, value: "" })); }}
                     />
+                    {errors.value && <p className="text-[11px] text-rose-500">{errors.value}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="min" className="text-xs font-bold">Min Cart Spend (₹)</Label>
                     <Input
                       id="min"
                       type="number"
+                      className={errors.minSpend ? "border-rose-500" : ""}
                       value={draft.minSpend}
-                      onChange={(e) => setDraft({ ...draft, minSpend: Number(e.target.value) })}
+                      onChange={(e) => { setDraft({ ...draft, minSpend: Number(e.target.value) }); setErrors((p) => ({ ...p, minSpend: "" })); }}
                     />
+                    {errors.minSpend && <p className="text-[11px] text-rose-500">{errors.minSpend}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="limit" className="text-xs font-bold">Usage Limit</Label>
                     <Input
                       id="limit"
                       type="number"
+                      className={errors.usageLimit ? "border-rose-500" : ""}
                       value={draft.usageLimit}
-                      onChange={(e) => setDraft({ ...draft, usageLimit: Number(e.target.value) })}
+                      onChange={(e) => { setDraft({ ...draft, usageLimit: Number(e.target.value) }); setErrors((p) => ({ ...p, usageLimit: "" })); }}
                     />
+                    {errors.usageLimit && <p className="text-[11px] text-rose-500">{errors.usageLimit}</p>}
                   </div>
                 </div>
 
@@ -441,13 +512,18 @@ export default function CouponsPage() {
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="exp" className="text-xs font-bold">Expiry Date</Label>
-                    <Input
-                      id="exp"
-                      type="date"
-                      value={draft.expires}
-                      onChange={(e) => setDraft({ ...draft, expires: e.target.value })}
-                    />
+                    <Label htmlFor="exp" className="text-xs font-bold">Expiry Date *</Label>
+                    <div className="relative">
+                      <Input
+                        id="exp"
+                        type="date"
+                        value={draft.expires}
+                        className={`cursor-pointer ${errors.expires ? "border-rose-500" : ""}`}
+                        onChange={(e) => { setDraft({ ...draft, expires: e.target.value }); setErrors((p) => ({ ...p, expires: "" })); }}
+                        onClick={(e) => (e.target as HTMLInputElement).showPicker()}
+                      />
+                    </div>
+                    {errors.expires && <p className="text-[11px] text-rose-500">{errors.expires}</p>}
                   </div>
                 </div>
 
@@ -692,7 +768,7 @@ export default function CouponsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => remove(c.id)}
+                      onClick={() => setDeleteTarget(c)}
                       className="h-8 w-8 p-0 text-slate-400 hover:text-rose-500"
                       title="Delete Coupon"
                     >
@@ -789,7 +865,7 @@ export default function CouponsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => remove(c.id)}
+                            onClick={() => setDeleteTarget(c)}
                             className="h-8 w-8 p-0 text-slate-400 hover:text-rose-500"
                           >
                             <Trash2 className="h-4 w-4" />

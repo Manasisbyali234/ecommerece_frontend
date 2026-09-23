@@ -104,9 +104,14 @@ export default function ProductDetailPage({ params }: PageProps) {
   const { addItem, openCart, items: cartItems } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  // Find product by ID
+  // Find product by ID — prefer the full product fetched directly from the API
+  // so that admin-configured aboutSections are always up-to-date.
+  const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
+
   const product: Product =
-    products.find((p) => p.id === resolvedParams.id) || loadingProduct;
+    fetchedProduct ||
+    products.find((p) => p.id === resolvedParams.id) ||
+    loadingProduct;
 
   const galleryImages = (product.images && product.images.length > 0
     ? product.images
@@ -187,11 +192,14 @@ export default function ProductDetailPage({ params }: PageProps) {
   const [reviewsList, setReviewsList] = useState<ProductReview[]>([]);
 
   useEffect(() => {
-    api<{ reviews: Array<ProductReview & { createdAt?: string }> }>(`/products/${resolvedParams.id}`)
-      .then(({ reviews }) => setReviewsList(reviews.map((review) => ({
-        ...review,
-        date: review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
-      }))))
+    api<{ product: Product; reviews: Array<ProductReview & { createdAt?: string }> }>(`/products/${resolvedParams.id}`)
+      .then(({ product: p, reviews }) => {
+        setFetchedProduct(p);
+        setReviewsList(reviews.map((review) => ({
+          ...review,
+          date: review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
+        })));
+      })
       .catch(() => setReviewsList([]));
   }, [resolvedParams.id]);
   const [reviewMediaModal, setReviewMediaModal] = useState<{ type: "image" | "video"; url: string; title?: string } | null>(null);
