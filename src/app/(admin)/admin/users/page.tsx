@@ -132,7 +132,7 @@ export default function AdminUsersPage() {
 
   const loadUsersAndRoles = () =>
     Promise.all([api<{ items: Array<Record<string, unknown>> }>("/admin/users"), api<{ items: Array<Record<string, unknown>> }>("/admin/roles")]).then(([userResult, roleResult]) => {
-      const loadedRoles: Role[] = roleResult.items.map((role) => ({ id: String(role.id), name: String(role.name), description: String(role.description || ""), isSuperAdmin: Boolean(role.isSuperAdmin), permissions: Boolean(role.isSuperAdmin) ? createFullPermissions() : parsePermissions(role.permissions) }));
+      const loadedRoles: Role[] = roleResult.items.map((role) => ({ id: String(role.id), name: String(role.name), description: String(role.description || ""), isSuperAdmin: Boolean(role.isSuperAdmin), permissions: role.isSuperAdmin ? createFullPermissions() : parsePermissions(role.permissions) }));
       const fallbackRole = loadedRoles.find((role) => role.name.toLowerCase().includes("admin"))?.id || "admin";
       store.replaceRoles(loadedRoles);
       store.replaceAdminUsers(userResult.items.map((user) => {
