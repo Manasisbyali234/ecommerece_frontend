@@ -94,7 +94,7 @@ export default function AdminSidebarOptionsPage() {
   const toggleActive = (id: string) => {
     const opt = sidebarOptions.find((x) => x.id === id);
     if (opt) {
-      store.updateSidebarOption(id, { active: !opt.active });
+      store.updateSidebarOption(id, { ...opt, active: !opt.active });
       toast.success(
         `Sidebar Option "${opt.label}" ${opt.active ? "paused" : "activated"}`
       );
@@ -395,8 +395,8 @@ export default function AdminSidebarOptionsPage() {
 
       {/* Form Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[calc(100vh-2rem)] max-w-md overflow-y-auto p-0 border-muted/60">
-          <div className="bg-gradient-to-r from-teal-500/15 via-teal-500/5 to-background p-6 border-b border-muted/40">
+        <DialogContent className="max-h-[calc(100vh-2rem)] max-w-md flex flex-col p-0 border-muted/60 overflow-hidden">
+          <div className="bg-gradient-to-r from-teal-500/15 via-teal-500/5 to-background p-6 border-b border-muted/40 shrink-0">
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Sliders className="h-5 w-5 text-teal-600" />
               {editingId ? "Edit Drawer Option" : "New Drawer Option"}
@@ -406,7 +406,7 @@ export default function AdminSidebarOptionsPage() {
             </DialogDescription>
           </div>
 
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 overflow-y-auto flex-1">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Drawer Section</Label>
@@ -472,7 +472,7 @@ export default function AdminSidebarOptionsPage() {
             </div>
           </div>
 
-          <div className="p-4 border-t border-muted/40 bg-muted/10 flex justify-end gap-2">
+          <div className="p-4 border-t border-muted/40 bg-muted/10 flex justify-end gap-2 shrink-0">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>

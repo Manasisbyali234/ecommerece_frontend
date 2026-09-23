@@ -404,7 +404,7 @@ export default function AdminCategoriesPage() {
                   id="cat-slug"
                   placeholder="e.g. apparel"
                   value={draft.slug}
-                  onChange={(e) => setDraft({ ...draft, slug: e.target.value })}
+                  onChange={(e) => setDraft({ ...draft, slug: e.target.value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") })}
                   className="pl-9 text-xs h-11 bg-muted/40 border-border/70 font-mono font-semibold"
                 />
               </div>

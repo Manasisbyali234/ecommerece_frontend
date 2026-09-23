@@ -42,12 +42,47 @@ export default function GeneralSettingsPage() {
   const [lowStockAlerts, setLowStockAlerts] = useState(true);
   const [lowStockThreshold, setLowStockThreshold] = useState("5");
 
-  useEffect(() => { api<{ setting: { value: Record<string, unknown> } }>("/admin/settings/general").then(({ setting }) => { const v = setting.value; setStoreName(String(v.storeName || storeName)); setTagline(String(v.tagline || tagline)); setCurrency(String(v.currency || currency)); setTimezone(String(v.timezone || timezone)); setSupportEmail(String(v.supportEmail || supportEmail)); setSupportPhone(String(v.supportPhone || supportPhone)); setMaintenanceMode(Boolean(v.maintenanceMode)); setAutoConfirmOrders(v.autoConfirmOrders !== false); setLowStockAlerts(v.lowStockAlerts !== false); setLowStockThreshold(String(v.lowStockThreshold || lowStockThreshold)); }).catch(() => undefined); }, []);
+  useEffect(() => {
+    api<{ setting: { value: Record<string, unknown> } }>("/admin/settings/general")
+      .then(({ setting }) => {
+        const v = setting?.value || {};
+        if (v.storeName !== undefined) setStoreName(String(v.storeName));
+        if (v.tagline !== undefined) setTagline(String(v.tagline));
+        if (v.currency !== undefined) setCurrency(String(v.currency));
+        if (v.timezone !== undefined) setTimezone(String(v.timezone));
+        if (v.supportEmail !== undefined) setSupportEmail(String(v.supportEmail));
+        if (v.supportPhone !== undefined) setSupportPhone(String(v.supportPhone));
+        if (v.maintenanceMode !== undefined) setMaintenanceMode(Boolean(v.maintenanceMode));
+        if (v.autoConfirmOrders !== undefined) setAutoConfirmOrders(v.autoConfirmOrders !== false);
+        if (v.lowStockAlerts !== undefined) setLowStockAlerts(v.lowStockAlerts !== false);
+        if (v.lowStockThreshold !== undefined) setLowStockThreshold(String(v.lowStockThreshold));
+      })
+      .catch(() => undefined);
+  }, []);
 
   const handleSave = async () => {
-    try { await api("/admin/settings/general", { method: "PUT", body: JSON.stringify({ storeName, tagline, currency, timezone, supportEmail, supportPhone, maintenanceMode, autoConfirmOrders, lowStockAlerts, lowStockThreshold }) }); toast.success("General Store Settings Updated Successfully!", {
-      description: "Changes applied across all website storefront components.",
-    }); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save settings"); }
+    try {
+      await api("/admin/settings/general", {
+        method: "PUT",
+        body: JSON.stringify({
+          storeName,
+          tagline,
+          currency,
+          timezone,
+          supportEmail,
+          supportPhone,
+          maintenanceMode,
+          autoConfirmOrders,
+          lowStockAlerts,
+          lowStockThreshold: Number(lowStockThreshold),
+        }),
+      });
+      toast.success("General Store Settings Updated Successfully!", {
+        description: "Changes applied across all website storefront components.",
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to save settings");
+    }
   };
 
   return (

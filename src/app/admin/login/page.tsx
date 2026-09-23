@@ -1,15 +1,13 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { authApi, setAccessToken, setAdminRole } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Toaster } from "@/components/ui/sonner";
 
 // Ordered list of admin modules — used to redirect to first authorized page after login
 const MODULE_ROUTES: { permission: string; path: string }[] = [
@@ -23,15 +21,38 @@ const MODULE_ROUTES: { permission: string; path: string }[] = [
   { permission: "users:read", path: "/admin/users" },
 ];
 
+function generateCaptcha() {
+  const a = Math.floor(Math.random() * 9) + 1;
+  const b = Math.floor(Math.random() * 9) + 1;
+  return { question: `${a} + ${b}`, answer: a + b };
+}
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [captcha, setCaptcha] = useState(generateCaptcha);
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [captchaError, setCaptchaError] = useState("");
+
+  const refreshCaptcha = useCallback(() => {
+    setCaptcha(generateCaptcha());
+    setCaptchaInput("");
+    setCaptchaError("");
+  }, []);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError("");
+    if (parseInt(captchaInput, 10) !== captcha.answer) {
+      setCaptchaError("Incorrect answer. Please try again.");
+      refreshCaptcha();
+      return;
+    }
+    setCaptchaError("");
     setLoading(true);
     try {
       const result = await authApi.adminLogin(email, password);
@@ -48,8 +69,6 @@ export default function AdminLoginPage() {
         setAdminRole({ id: "", name: result.user.role, isSuperAdmin: result.user.role === "admin", permissions: [], email: result.user.email });
       }
 
-      toast.success("Signed in to Admin Console");
-
       // Redirect to first authorized module
       const role = result.user.roleRef;
       if (role?.isSuperAdmin || !role) {
@@ -58,8 +77,8 @@ export default function AdminLoginPage() {
         const first = MODULE_ROUTES.find((m) => role.permissions.includes(m.permission));
         router.replace(first?.path || "/admin");
       }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Sign-in failed");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -101,6 +120,25 @@ export default function AdminLoginPage() {
                 </button>
               </div>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="captcha">Security check: {captcha.question} = ?</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="captcha"
+                  value={captchaInput}
+                  type="number"
+                  placeholder="Answer"
+                  onChange={(e) => { setCaptchaInput(e.target.value); setCaptchaError(""); }}
+                  required
+                  className="w-28"
+                />
+                <button type="button" onClick={refreshCaptcha} className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground">
+                  Refresh
+                </button>
+              </div>
+              {captchaError && <p className="text-sm text-destructive">{captchaError}</p>}
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <Button className="w-full" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</Button>
           </form>
 
@@ -112,7 +150,6 @@ export default function AdminLoginPage() {
           </p>
         </CardContent>
       </Card>
-      <Toaster />
     </main>
   );
 }

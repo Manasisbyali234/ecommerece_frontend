@@ -141,7 +141,7 @@ export function AppSidebar() {
   const showMasterSettingsMenu = matches("Master Settings", settingsSubItems);
 
   // System Group
-  const showSystemGroup = showWebsiteMenu || showMasterSettingsMenu || (matches("Users & Roles", ["User Analytics"]) && hasPermission("users:read"));
+  const showSystemGroup = showWebsiteMenu || showMasterSettingsMenu || (matches("Users & Roles") && hasPermission("users:read"));
 
   const [staffRole, setStaffRole] = useState(getAdminRole);
   const brandName = useStore((s) => s.footerConfig?.brandName || s.headerConfig?.logo?.text || "Admin");
@@ -764,7 +764,7 @@ export function AppSidebar() {
                 )}
 
                 {/* Users & Roles Management */}
-                {matches("Users & Roles", ["User Analytics"]) && hasPermission("users:read") && (
+                {matches("Users & Roles") && hasPermission("users:read") && (
                   <Collapsible defaultOpen={currentPath?.startsWith("/admin/users") || Boolean(query)} className="group/collapsible">
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
@@ -798,20 +798,7 @@ export function AppSidebar() {
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           )}
-                          {matches("User Analytics") && (
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={currentPath?.includes("/admin/users") && currentPath?.includes("analytics")}
-                                className="h-8 text-xs font-medium"
-                              >
-                                <Link href="/admin/users?tab=analytics" className="flex items-center gap-2">
-                                  <BarChart3 className="h-3.5 w-3.5 text-violet-500" />
-                                  <span>User Analytics</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          )}
+
                         </SidebarMenuSub>
                       </CollapsibleContent>
                     </SidebarMenuItem>

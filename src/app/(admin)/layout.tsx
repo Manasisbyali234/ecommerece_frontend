@@ -1,11 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { Button } from "@/components/ui/button";
-import { ShoppingBag, ArrowUpRight } from "lucide-react";
 import { AdminSessionGate } from "@/components/admin-session-gate";
 import { AdminDataHydrator } from "@/components/admin-data-hydrator";
 
@@ -35,14 +32,7 @@ export default function AdminLayout({
               </div>
             </div>
 
-            {/* Quick Button to Customer Storefront */}
-            <Button asChild variant="outline" size="sm" className="h-8 shrink-0 gap-1.5 px-2 text-xs font-medium sm:px-3">
-              <Link href="/">
-                <ShoppingBag className="h-3.5 w-3.5 text-primary" />
-                <span className="hidden min-[360px]:inline">View Website</span>
-                <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
-              </Link>
-            </Button>
+
           </header>
           <main className="min-w-0 flex-1 p-3 sm:p-6">{children}</main>
         </div>
