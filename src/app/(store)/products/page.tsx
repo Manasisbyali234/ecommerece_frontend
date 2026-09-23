@@ -20,6 +20,7 @@ import { formatCurrency, type Product } from "@/lib/mock-data";
 import { useProducts } from "@/hooks/use-products";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
+import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -173,12 +174,14 @@ const categorySecondaryFilters: Record<string, SecondaryFilterConfig[]> = {
 function ProductsContent() {
   const initialProducts = useProducts();
   const searchParams = useSearchParams();
-  const { addItem } = useCart();
+  const { addItem, items: cartItems, openCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const managedSubCategories = useStore((s) => s.subCategories);
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
+  const [selectedSubCategory, setSelectedSubCategory] = useState(searchParams.get("subcategory") || "All");
   const [selectedGender, setSelectedGender] = useState<AudienceFilter>(normalizeAudience(searchParams.get("gender") || searchParams.get("audience")));
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
@@ -195,11 +198,23 @@ function ProductsContent() {
   useEffect(() => {
     const cat = searchParams.get("category");
     setSelectedCategory(cat || "All");
+    setSelectedSubCategory(searchParams.get("subcategory") || "All");
     const q = searchParams.get("search");
     setSearchQuery(q || "");
     const audience = searchParams.get("gender") || searchParams.get("audience");
     if (audience) setSelectedGender(normalizeAudience(audience));
   }, [searchParams]);
+
+  const availableSubCategories = useMemo(() => {
+    const names = new Set<string>();
+    managedSubCategories.forEach((item) => {
+      if (item.active && (selectedCategory === "All" || item.category.toLowerCase() === selectedCategory.toLowerCase())) names.add(item.title);
+    });
+    initialProducts.forEach((product) => {
+      if (product.subCategory && (selectedCategory === "All" || matchesCategory(product, selectedCategory))) names.add(product.subCategory);
+    });
+    return Array.from(names).sort((a, b) => a.localeCompare(b));
+  }, [initialProducts, managedSubCategories, selectedCategory]);
 
   // Dynamic Secondary Filters config based on selectedCategory + custom product specs
   const secondaryFiltersConfig = useMemo(() => {
@@ -267,6 +282,10 @@ function ProductsContent() {
 
       // 2. Category Filter
       if (!matchesCategory(product, selectedCategory)) {
+        return false;
+      }
+
+      if (selectedSubCategory !== "All" && product.subCategory?.toLowerCase() !== selectedSubCategory.toLowerCase()) {
         return false;
       }
 
@@ -353,6 +372,7 @@ function ProductsContent() {
   }, [
     searchQuery,
     selectedCategory,
+    selectedSubCategory,
     selectedGender,
     selectedBrands,
     priceRange,
@@ -418,6 +438,7 @@ function ProductsContent() {
   // Clear all filters
   const resetFilters = () => {
     setSelectedCategory("All");
+    setSelectedSubCategory("All");
     setSelectedGender("All");
     setSelectedBrands([]);
     setSelectedColors([]);
@@ -432,6 +453,7 @@ function ProductsContent() {
 
   const hasActiveFilters =
     selectedCategory !== "All" ||
+    selectedSubCategory !== "All" ||
     selectedGender !== "All" ||
     selectedBrands.length > 0 ||
     selectedColors.length > 0 ||
@@ -487,23 +509,38 @@ function ProductsContent() {
             </Button>
 
             {/* Sort Dropdown */}
-            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border bg-background px-2.5 py-1.5 text-xs shadow-2xs sm:flex-none sm:px-3">
-              <span className="text-muted-foreground font-medium hidden sm:inline">Sort by :</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent font-bold text-foreground focus:outline-none cursor-pointer text-xs"
-              >
-                <option value="recommended">Recommended</option>
-                <option value="newest">What's New</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Customer Rating</option>
-                <option value="discount">Better Discount</option>
-              </select>
+            <div className="group flex min-w-0 flex-1 items-stretch overflow-hidden rounded-lg border bg-background text-xs shadow-2xs transition-shadow focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 sm:w-[15.5rem] sm:flex-none">
+              <div className="flex items-center gap-1.5 border-r bg-muted/35 px-2.5 text-muted-foreground sm:px-3">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                <span className="font-semibold">Sort</span>
+              </div>
+              <div className="relative min-w-0 flex-1">
+                <label htmlFor="product-sort" className="sr-only">Sort products</label>
+                <select
+                  id="product-sort"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="h-full w-full cursor-pointer appearance-none bg-transparent py-2 pl-2.5 pr-8 text-xs font-bold text-foreground outline-none sm:pl-3"
+                >
+                  <option value="recommended">Recommended</option>
+                  <option value="newest">What&apos;s New</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="rating">Customer Rating</option>
+                  <option value="discount">Better Discount</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground transition-transform group-focus-within:rotate-180" aria-hidden="true" />
+              </div>
             </div>
           </div>
         </div>
+
+        {availableSubCategories.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1" aria-label="Subcategory filters">
+            <button type="button" onClick={() => setSelectedSubCategory("All")} className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${selectedSubCategory === "All" ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:border-primary/50"}`}>All subcategories</button>
+            {availableSubCategories.map((subCategory) => <button key={subCategory} type="button" onClick={() => setSelectedSubCategory(subCategory)} className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${selectedSubCategory === subCategory ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:border-primary/50"}`}>{subCategory}</button>)}
+          </div>
+        )}
 
         {/* Main Workspace Layout: Left Primary Sidebar + Right Content Area */}
         <div className="flex items-start gap-4 lg:gap-6">
@@ -868,6 +905,7 @@ function ProductsContent() {
                   const discountPercent = Math.round(((mrp - product.price) / mrp) * 100);
                   const brand = getBrandName(product);
                   const isWishlisted = isInWishlist(product.id);
+                  const isInCart = cartItems.some((item) => item.product.id === product.id);
 
                   return (
                     <div
@@ -957,15 +995,14 @@ function ProductsContent() {
                         {/* Add to Cart Action Button */}
                         <Button
                           onClick={() => {
+                            if (isInCart) { openCart(); return; }
                             addItem(product);
-                            toast.success("Added to Shopping Cart", {
-                              description: `${product.name} added to cart`,
-                            });
+                            toast.success("Added to Shopping Cart", { description: `${product.name} added to cart` });
                           }}
                           className="mt-1.5 h-8 w-full gap-1 rounded-lg bg-slate-900 text-[11px] font-bold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-200 sm:mt-2 sm:gap-1.5 sm:text-xs"
                         >
                           <ShoppingBag className="h-3.5 w-3.5" />
-                          <span>Add to Cart</span>
+                          <span>{isInCart ? "View Cart" : "Add to Cart"}</span>
                         </Button>
                       </div>
                     </div>

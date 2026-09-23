@@ -248,11 +248,11 @@ export function HeroCarousel() {
               }}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/90 to-slate-950/75 z-10" />
+          <div className="absolute inset-0 z-10" style={{ background: `linear-gradient(to top, ${currentBanner.bgColor || "#090d16"}, ${currentBanner.bgColor || "#090d16"}e6, ${currentBanner.bgColor || "#090d16"}b3)` }} />
         </>
       ) : (
         <>
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/95 to-slate-950/80 z-10" />
+          <div className="absolute inset-0 z-10" style={{ background: `linear-gradient(to right, ${currentBanner.bgColor || "#090d16"}, ${currentBanner.bgColor || "#090d16"}f2, ${currentBanner.bgColor || "#090d16"}cc)` }} />
           {currentBanner.imageUrl && (
             <div
               className="absolute inset-0 bg-cover bg-center opacity-25 blur-sm transition-all duration-1000 scale-105"

@@ -107,7 +107,6 @@ export default function ProductDetailPage({ params }: PageProps) {
   // Find product by ID
   const product: Product =
     products.find((p) => p.id === resolvedParams.id) || loadingProduct;
-  const cartQuantity = cartItems.find((item) => item.product.id === product.id)?.quantity || 0;
 
   const galleryImages = (product.images && product.images.length > 0
     ? product.images
@@ -122,6 +121,7 @@ export default function ProductDetailPage({ params }: PageProps) {
   const [selectedSize, setSelectedSize] = useState(
     product.sizes && product.sizes.length > 0 ? product.sizes[0] : ""
   );
+  const cartQuantity = cartItems.find((item) => item.product.id === product.id && item.color === (selectedColor || undefined) && item.size === (selectedSize || undefined))?.quantity || 0;
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"features" | "specs" | "reviews">("features");
 
@@ -386,7 +386,7 @@ export default function ProductDetailPage({ params }: PageProps) {
       toast.error("Please login first to add items to your cart.");
       return;
     }
-    addItem(product, quantity);
+    addItem(product, quantity, { color: selectedColor || undefined, size: selectedSize || undefined });
     toast.success(`Added ${quantity} × ${product.name} to cart!`, {
       description: selectedColor || selectedSize ? `Variant: ${selectedColor} ${selectedSize}` : undefined,
     });
@@ -403,7 +403,7 @@ export default function ProductDetailPage({ params }: PageProps) {
       toast.error("Please login first to add items to your cart.");
       return;
     }
-    addItem(product, quantity);
+    addItem(product, quantity, { color: selectedColor || undefined, size: selectedSize || undefined });
     toast.success(`Proceeding to checkout with ${product.name}`);
     router.push("/checkout");
   };

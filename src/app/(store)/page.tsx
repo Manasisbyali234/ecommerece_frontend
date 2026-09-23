@@ -257,7 +257,7 @@ function StoreHomeContent() {
           {subCategories.map((item) => (
             <Link
               key={item.id}
-              href={`/products?category=${encodeURIComponent(item.category)}`}
+              href={`/products?category=${encodeURIComponent(item.category)}&subcategory=${encodeURIComponent(item.title)}`}
               className="group flex min-w-0 flex-col justify-between rounded-lg border border-[#85b978] bg-[#9ecb92] p-2 text-center shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-emerald-800 dark:bg-emerald-950/80 sm:rounded-xl sm:p-2.5"
             >
               {/* Aspect 4:5 Inner White Container Image */}
@@ -297,7 +297,7 @@ function StoreHomeContent() {
             {categoriesList.filter((category) => category.name !== "All" && category.image).map((category) => (
               <Link key={category.id} href={`/products?category=${encodeURIComponent(category.name)}`} className="group overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
                 <div className="aspect-square overflow-hidden bg-muted">
-                  <img src={category.image} alt={category.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={category.image} alt={category.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ objectPosition: `${category.cropPositionX ?? 50}% ${category.cropPositionY ?? 50}%`, transform: `scale(${category.imageZoom ?? 1})` }} />
                 </div>
                 <div className="p-3 text-center">
                   <h3 className="font-bold text-sm text-foreground">{category.name}</h3>

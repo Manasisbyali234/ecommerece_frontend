@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { useStore, store, type SubCategory } from "@/lib/store";
+import { hydrateAdminStore, useStore, store, type SubCategory } from "@/lib/store";
 import { PageHeader } from "@/components/page-header";
 import { api, uploadImage } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -115,7 +115,7 @@ export default function AdminSubCategoriesPage() {
         (item) => item.title.toLowerCase().includes(q) || item.discount.toLowerCase().includes(q)
       );
     }
-    return result;
+    return [...result].sort((a, b) => a.category.localeCompare(b.category) || a.title.localeCompare(b.title));
   }, [subCategories, selectedCatFilter, searchQuery]);
 
   const stats = useMemo(() => {
@@ -154,7 +154,7 @@ export default function AdminSubCategoriesPage() {
     }
 
     const slug = draft.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-    try { if (editingId) { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<SubCategory, "id"> } }>(`/admin/content/sub-categories/${editingId}`, { method: "PATCH", body: JSON.stringify({ title: draft.title, slug, active: draft.active, data: draft }) }); const saved = { ...item.data, id: item.id, title: item.data.title || item.title, active: item.active }; setSubCategories((items) => items.map((item) => item.id === editingId ? saved : item)); toast.success("Sub Category updated live!"); } else { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<SubCategory, "id"> } }>("/admin/content/sub-categories", { method: "POST", body: JSON.stringify({ title: draft.title, slug, active: draft.active, data: draft }) }); setSubCategories((items) => [{ ...item.data, id: item.id, title: item.data.title || item.title, active: item.active }, ...items]); toast.success("New Sub Category added live to storefront!"); } setOpen(false); setEditingId(null); setDraft(emptyDraft); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save subcategory"); }
+    try { if (editingId) { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<SubCategory, "id"> } }>(`/admin/content/sub-categories/${editingId}`, { method: "PATCH", body: JSON.stringify({ title: draft.title, slug, active: draft.active, data: draft }) }); const saved = { ...item.data, id: item.id, title: item.data.title || item.title, active: item.active }; setSubCategories((items) => items.map((item) => item.id === editingId ? saved : item)); toast.success("Sub Category updated live!"); } else { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<SubCategory, "id"> } }>("/admin/content/sub-categories", { method: "POST", body: JSON.stringify({ title: draft.title, slug, active: draft.active, data: draft }) }); setSubCategories((items) => [{ ...item.data, id: item.id, title: item.data.title || item.title, active: item.active }, ...items]); toast.success("New Sub Category added live to storefront!"); } await hydrateAdminStore().catch(() => undefined); setOpen(false); setEditingId(null); setDraft(emptyDraft); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save subcategory"); }
   };
 
   const removeSubCategory = async (id: string) => {

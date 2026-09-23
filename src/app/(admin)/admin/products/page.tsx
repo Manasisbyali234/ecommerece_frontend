@@ -132,7 +132,7 @@ function uniq(values: string[]) {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
-function buildCategoryHierarchy(navCategories: NavCategoryGroup[]) {
+function buildCategoryHierarchy(navCategories: NavCategoryGroup[], categories: Array<{ name: string; active: boolean }>, subCategories: Array<{ category: string; title: string; active: boolean }>) {
   const hierarchy: Record<string, string[]> = {};
   navCategories
     .filter((vertical) => vertical.active !== false)
@@ -142,6 +142,13 @@ function buildCategoryHierarchy(navCategories: NavCategoryGroup[]) {
         hierarchy[category.name] = uniq([...(hierarchy[category.name] || []), ...(category.subcategories || [])]);
       });
     });
+  categories.filter((category) => category.active && category.name !== "All").forEach((category) => {
+    hierarchy[category.name] = hierarchy[category.name] || [];
+  });
+  subCategories.filter((subCategory) => subCategory.active).forEach((subCategory) => {
+    if (!subCategory.category?.trim() || !subCategory.title?.trim()) return;
+    hierarchy[subCategory.category] = uniq([...(hierarchy[subCategory.category] || []), subCategory.title]);
+  });
   return Object.keys(hierarchy).length > 0 ? hierarchy : fallbackSubCategoryOptions;
 }
 
@@ -172,6 +179,8 @@ function calculateDiscountPercent(cost: number, price: number) {
 
 export default function ProductsPage() {
   const navCategories = useStore((s) => s.navCategories);
+  const managedCategories = useStore((s) => s.categories);
+  const managedSubCategories = useStore((s) => s.subCategories);
   const [items, setItems] = useState<Product[]>([]);
   useEffect(() => {
     api<{ items: Product[] }>("/admin/products")
@@ -258,7 +267,7 @@ export default function ProductsPage() {
   const [comboSubCategoryFilter, setComboSubCategoryFilter] = useState<string>("all");
   const [selectedComboProductId, setSelectedComboProductId] = useState<string>("");
 
-  const categoryHierarchy = useMemo(() => buildCategoryHierarchy(navCategories), [navCategories]);
+  const categoryHierarchy = useMemo(() => buildCategoryHierarchy(navCategories, managedCategories, managedSubCategories), [navCategories, managedCategories, managedSubCategories]);
   const categoryOptions = useMemo(() => {
     const options = uniq(Object.keys(categoryHierarchy));
     return options.length > 0 ? options : fallbackCategoryOptions;
@@ -445,7 +454,7 @@ export default function ProductsPage() {
 
     const slug = (formData.name || "product").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const comboDeals = fieldRules.showComboProducts ? (formData.comboDeals || []) : [];
-    const payload = { name: formData.name, slug, sku: formData.sku, category: formData.category || defaultCategory, subCategory: formData.subCategory || undefined, brand: formData.brand, gender: formData.gender, costPrice: Number(formData.costPrice) || 0, discountPercent: Number(formData.discountPercent) || 0, price: Number(formData.price) || 0, originalPrice: Number(formData.originalPrice) || 0, stock: Number(formData.stock) || 0, status: formData.status || "active", image: formData.image || "", images: formData.images || [], description: formData.description, features: parsedFeatures, specs: formData.specs || {}, colors: formData.colors || [], sizes: formData.sizes || [], tags: formData.tags || [], codAvailable: formData.codAvailable ?? true, returnAvailable: formData.returnAvailable ?? true, exchangeAvailable: formData.exchangeAvailable ?? true, warrantyPeriod: formData.warrantyPeriod, comboDealAvailable: fieldRules.showComboProducts ? (formData.comboDealAvailable ?? true) : false, comboDeals, comboProductIds: uniq(comboDeals.flatMap((deal) => deal.productIds || [])) };
+    const payload = { name: formData.name, slug, sku: formData.sku, category: formData.category || defaultCategory, subCategory: formData.subCategory || undefined, brand: formData.brand, gender: formData.gender, costPrice: Number(formData.costPrice) || 0, discountPercent: Number(formData.discountPercent) || 0, price: Number(formData.price) || 0, originalPrice: Number(formData.originalPrice) || 0, stock: Number(formData.stock) || 0, status: formData.status || "active", image: formData.image || "", images: formData.images || [], description: formData.description, features: parsedFeatures, specs: formData.specs || {}, colors: formData.colors || [], sizes: formData.sizes || [], tags: formData.tags || [], codAvailable: formData.codAvailable ?? true, returnAvailable: formData.returnAvailable ?? true, exchangeAvailable: formData.exchangeAvailable ?? true, warrantyPeriod: formData.warrantyPeriod, aboutSections: formData.aboutSections || [], additionalInfoSections: formData.additionalInfoSections || [], comboDealAvailable: fieldRules.showComboProducts ? (formData.comboDealAvailable ?? true) : false, comboDeals, comboProductIds: uniq(comboDeals.flatMap((deal) => deal.productIds || [])) };
     try { if (editingId) {
       // Update existing
       await api(`/admin/products/${editingId}`, { method: "PATCH", body: JSON.stringify(payload) });
@@ -649,6 +658,10 @@ export default function ProductsPage() {
       colors: [...(prev.colors || []), { name: colorName, hex: colorHex }],
     }));
     setColorName("");
+  };
+
+  const handleRemoveColor = (colorIndex: number) => {
+    setFormData((prev) => ({ ...prev, colors: (prev.colors || []).filter((_, index) => index !== colorIndex) }));
   };
 
   // Add Size
@@ -1308,14 +1321,14 @@ export default function ProductsPage() {
       {/* ========================================================================= */}
       <Dialog open={openModal} onOpenChange={setOpenModal}>
         <DialogContent
-          className="max-w-4xl max-h-[92vh] flex flex-col p-0 border shadow-2xl overflow-hidden"
+          className="max-w-4xl max-h-[92vh] flex flex-col p-0 border shadow-2xl overflow-hidden [&>button]:hidden"
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
         >
           {/* Modal Header */}
           <DialogHeader className="p-5 border-b bg-muted/20 shrink-0">
-            <div className="flex items-center justify-between pr-6">
-              <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
                 <DialogTitle className="text-lg font-extrabold flex items-center gap-2">
                   <Package className="h-5 w-5 text-amber-500" />
                   {editingId ? `Edit Storefront Product (${formData.sku})` : "Create New Storefront Product"}
@@ -1325,11 +1338,24 @@ export default function ProductsPage() {
                 </DialogDescription>
               </div>
 
-              {formData.status && (
-                <Badge variant="outline" className={`text-xs font-extrabold capitalize ${statusColor[formData.status]}`}>
-                  {formData.status}
-                </Badge>
-              )}
+              <div className="flex items-center gap-2 shrink-0">
+                {formData.status && (
+                  <Badge variant="outline" className={`hidden text-xs font-extrabold capitalize sm:inline-flex ${statusColor[formData.status]}`}>
+                    {formData.status}
+                  </Badge>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setOpenModal(false)}
+                  className="h-8 gap-1.5 px-2.5 text-xs font-bold shadow-2xs"
+                  aria-label="Close product editor"
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Close</span>
+                </Button>
+              </div>
             </div>
           </DialogHeader>
 
@@ -2246,6 +2272,7 @@ export default function ProductsPage() {
                       <Badge key={i} variant="outline" className="text-xs font-bold py-1 px-2.5 gap-2 bg-background border">
                         <span className="h-3 w-3 rounded-full border shadow-2xs inline-block" style={{ backgroundColor: c.hex }} />
                         <span>{c.name}</span>
+                        <button type="button" onClick={() => handleRemoveColor(i)} className="ml-0.5 rounded p-0.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-600" aria-label={`Remove ${c.name} color`} title={`Remove ${c.name}`}><X className="h-3.5 w-3.5" /></button>
                       </Badge>
                     ))}
                   </div>
@@ -2320,13 +2347,16 @@ export default function ProductsPage() {
               {/* TAB 6: FULLY ENHANCED DETAIL PAGE ABOUT SECTIONS EDITOR */}
               {/* ========================================================================= */}
               <TabsContent value="sections" className="space-y-5 pt-1">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border bg-muted/20">
+                <div className="flex flex-col gap-3 rounded-xl border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <Label className="text-sm font-extrabold text-foreground flex items-center gap-2">
                       <Layers className="h-4 w-4 text-amber-500" /> Product Detail Page Sections
                     </Label>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Product detail page sections content modification options.
+                      Arrange, enable, and edit the content shown on the storefront product page.
+                    </p>
+                    <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
+                      {getAboutSections().filter((section) => section.active).length} of {getAboutSections().length} sections visible to customers
                     </p>
                   </div>
 
@@ -2354,7 +2384,7 @@ export default function ProductsPage() {
                         }`}
                       >
                         {/* Section Card Header */}
-                        <div className="p-3 bg-muted/30 border-b flex items-center justify-between gap-3 select-none">
+                        <div className="flex flex-col gap-3 border-b bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between select-none">
                           <div className="flex items-center gap-2.5 min-w-0">
                             {/* Move Up/Down Controls */}
                             <div className="flex items-center gap-0.5">
@@ -2362,8 +2392,9 @@ export default function ProductsPage() {
                                 type="button"
                                 disabled={idx === 0}
                                 onClick={() => moveSection(idx, "up")}
-                                className="h-6 w-6 rounded hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 flex items-center justify-center"
+                                className="flex h-7 w-7 items-center justify-center rounded border border-transparent text-muted-foreground hover:bg-background hover:text-foreground disabled:opacity-30"
                                 title="Move Up"
+                                aria-label={`Move ${sec.title} up`}
                               >
                                 <ArrowUp className="h-3.5 w-3.5" />
                               </button>
@@ -2371,8 +2402,9 @@ export default function ProductsPage() {
                                 type="button"
                                 disabled={idx === getAboutSections().length - 1}
                                 onClick={() => moveSection(idx, "down")}
-                                className="h-6 w-6 rounded hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 flex items-center justify-center"
+                                className="flex h-7 w-7 items-center justify-center rounded border border-transparent text-muted-foreground hover:bg-background hover:text-foreground disabled:opacity-30"
                                 title="Move Down"
+                                aria-label={`Move ${sec.title} down`}
                               >
                                 <ArrowDown className="h-3.5 w-3.5" />
                               </button>
@@ -2412,6 +2444,8 @@ export default function ProductsPage() {
                               type="button"
                               onClick={() => toggleSectionExpanded(sec.id)}
                               className="h-7 w-7 rounded-lg border bg-background hover:bg-muted text-foreground flex items-center justify-center"
+                              aria-label={`${isExpanded ? "Collapse" : "Expand"} ${sec.title}`}
+                              aria-expanded={isExpanded}
                             >
                               {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                             </button>
@@ -2422,6 +2456,7 @@ export default function ProductsPage() {
                               onClick={() => deleteSection(idx)}
                               className="h-7 w-7 rounded-lg text-rose-500 hover:bg-rose-500/10 flex items-center justify-center"
                               title="Delete Section"
+                              aria-label={`Delete ${sec.title}`}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>

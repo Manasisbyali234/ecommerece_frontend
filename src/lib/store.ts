@@ -467,6 +467,9 @@ export type CategoryItem = {
   slug: string;
   description?: string;
   image?: string;
+  cropPositionX?: number;
+  cropPositionY?: number;
+  imageZoom?: number;
   active: boolean;
 };
 

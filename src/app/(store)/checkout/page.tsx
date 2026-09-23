@@ -237,7 +237,8 @@ export default function StorefrontCheckoutPage() {
       const address = await resolveAddress();
       if (!address) { toast.error("Please choose or add a delivery address"); return; }
 
-      const { order } = await api<{ order: { id: string; orderNumber: string; paymentMethod: string; paymentStatus: string } }>("/orders/checkout", { method: "POST", body: JSON.stringify({ address, couponCode: appliedCoupon?.code, paymentMethod, items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })) }) });
+      const savedAddressId = selectedAddressId || savedAddresses.find((item) => item.isDefault)?.id || savedAddresses[0]?.id;
+      const { order } = await api<{ order: { id: string; orderNumber: string; paymentMethod: string; paymentStatus: string } }>("/orders/checkout", { method: "POST", body: JSON.stringify({ addressId: !isAddingCustomAddress ? savedAddressId : undefined, address: isAddingCustomAddress ? address : undefined, couponCode: appliedCoupon?.code, paymentMethod, items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity, color: item.color, size: item.size })) }) });
 
       if (paymentMethod === "online") {
         const { payment } = await api<{ payment: { keyId: string; orderId: string; amount: number; currency: string } }>(`/orders/${order.id}/payment`, { method: "POST" });
@@ -293,7 +294,7 @@ export default function StorefrontCheckoutPage() {
             Customer Checkout
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Review your cart and shipping address, then place the order. Payment is currently skipped.
+            Review your cart and shipping address, then place the order securely.
           </p>
         </div>
 
@@ -371,7 +372,7 @@ export default function StorefrontCheckoutPage() {
 
                         return (
                           <div
-                            key={item.product.id ?? index}
+                            key={`${item.product.id}-${item.color || ""}-${item.size || ""}-${index}`}
                             className="flex flex-col items-start justify-between gap-3 p-3 transition-colors hover:bg-muted/10 sm:flex-row sm:items-center sm:gap-4 sm:p-4"
                           >
                             <div className="flex min-w-0 items-center gap-3 sm:gap-4">
@@ -439,7 +440,7 @@ export default function StorefrontCheckoutPage() {
                               {/* Quantity Controls */}
                               <div className="flex items-center gap-1.5 border rounded-lg p-1 bg-background">
                                 <button
-                                  onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                  onClick={() => updateQuantity(item.product.id, item.quantity - 1, { color: item.color, size: item.size })}
                                   className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-muted text-foreground transition-colors"
                                   title="Decrease quantity"
                                 >
@@ -449,7 +450,7 @@ export default function StorefrontCheckoutPage() {
                                   {item.quantity}
                                 </span>
                                 <button
-                                  onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                  onClick={() => updateQuantity(item.product.id, item.quantity + 1, { color: item.color, size: item.size })}
                                   className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-muted text-foreground transition-colors"
                                   title="Increase quantity"
                                 >
@@ -473,7 +474,7 @@ export default function StorefrontCheckoutPage() {
 
                               {/* Delete Item */}
                               <button
-                                onClick={() => removeItem(item.product.id)}
+                                onClick={() => removeItem(item.product.id, { color: item.color, size: item.size })}
                                 className="text-muted-foreground hover:text-destructive p-1 transition-colors"
                                 title="Remove item"
                               >

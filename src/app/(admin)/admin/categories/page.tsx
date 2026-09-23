@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { useStore, store, type CategoryItem } from "@/lib/store";
+import { hydrateAdminStore, useStore, store, type CategoryItem } from "@/lib/store";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -83,6 +83,9 @@ export default function AdminCategoriesPage() {
     slug: "",
     description: "",
     image: "",
+    cropPositionX: 50,
+    cropPositionY: 50,
+    imageZoom: 1,
     active: true,
   };
 
@@ -147,7 +150,7 @@ export default function AdminCategoriesPage() {
     const slug = draft.slug.trim() || draft.name.trim().toLowerCase().replace(/\s+/g, "-");
     const payload = { ...draft, slug };
 
-    try { if (editingId) { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<CategoryItem, "id"> } }>(`/admin/content/categories/${editingId}`, { method: "PATCH", body: JSON.stringify({ title: payload.name, slug: payload.slug, active: payload.active, data: payload }) }); const saved = { ...item.data, id: item.id, name: item.data.name || item.title, active: item.active }; setCategories((items) => items.map((item) => item.id === editingId ? saved : item)); toast.success(`Category "${draft.name}" updated live!`); } else { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<CategoryItem, "id"> } }>("/admin/content/categories", { method: "POST", body: JSON.stringify({ title: payload.name, slug: payload.slug, active: payload.active, data: payload }) }); setCategories((items) => [{ ...item.data, id: item.id, name: item.data.name || item.title, active: item.active }, ...items]); toast.success(`New Category "${draft.name}" added live to storefront!`); } setOpen(false); setEditingId(null); setDraft(emptyDraft); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save category"); }
+    try { if (editingId) { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<CategoryItem, "id"> } }>(`/admin/content/categories/${editingId}`, { method: "PATCH", body: JSON.stringify({ title: payload.name, slug: payload.slug, active: payload.active, data: payload }) }); const saved = { ...item.data, id: item.id, name: item.data.name || item.title, active: item.active }; setCategories((items) => items.map((item) => item.id === editingId ? saved : item)); toast.success(`Category "${draft.name}" updated live!`); } else { const { item } = await api<{ item: { id: string; title: string; active: boolean; data: Omit<CategoryItem, "id"> } }>("/admin/content/categories", { method: "POST", body: JSON.stringify({ title: payload.name, slug: payload.slug, active: payload.active, data: payload }) }); setCategories((items) => [{ ...item.data, id: item.id, name: item.data.name || item.title, active: item.active }, ...items]); toast.success(`New Category "${draft.name}" added live to storefront!`); } await hydrateAdminStore().catch(() => undefined); setOpen(false); setEditingId(null); setDraft(emptyDraft); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save category"); }
   };
 
   const removeCategory = async (id: string) => {
@@ -272,6 +275,7 @@ export default function AdminCategoriesPage() {
                       src={cat.image}
                       alt={cat.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={{ objectPosition: `${cat.cropPositionX ?? 50}% ${cat.cropPositionY ?? 50}%`, transform: `scale(${cat.imageZoom ?? 1})` }}
                     />
                   ) : (
                     <div className="flex flex-col items-center gap-1 text-slate-400">
@@ -431,7 +435,7 @@ export default function AdminCategoriesPage() {
               <div className="flex gap-3 items-center bg-muted/20 p-3 rounded-xl border">
                 <div className="relative aspect-video w-24 overflow-hidden rounded-lg border bg-slate-950 shadow-xs flex-shrink-0">
                   {draft.image ? (
-                    <img src={draft.image} alt="Preview" className="h-full w-full object-cover" />
+                    <img src={draft.image} alt="Preview" className="h-full w-full object-cover" style={{ objectPosition: `${draft.cropPositionX ?? 50}% ${draft.cropPositionY ?? 50}%`, transform: `scale(${draft.imageZoom ?? 1})` }} />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground bg-muted">
                       No Image
@@ -468,6 +472,27 @@ export default function AdminCategoriesPage() {
                   </div>
                 </div>
               </div>
+
+              {draft.image && (
+                <div className="rounded-xl border bg-muted/20 p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold">Cover crop & framing</p>
+                      <p className="text-[11px] text-muted-foreground">Position the visible part of this cover on storefront category cards.</p>
+                    </div>
+                    <Button type="button" variant="outline" size="sm" className="h-8 text-[11px]" onClick={() => setDraft((current) => ({ ...current, cropPositionX: 50, cropPositionY: 50, imageZoom: 1 }))}>Reset crop</Button>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {([['Horizontal', 'cropPositionX'], ['Vertical', 'cropPositionY'], ['Zoom', 'imageZoom']] as const).map(([label, key]) => {
+                      const value = key === 'imageZoom' ? draft.imageZoom ?? 1 : draft[key] ?? 50;
+                      const min = key === 'imageZoom' ? 1 : 0;
+                      const max = key === 'imageZoom' ? 2 : 100;
+                      const step = key === 'imageZoom' ? 0.05 : 1;
+                      return <label key={key} className="space-y-1 text-[11px] font-bold text-muted-foreground"><span className="flex justify-between"><span>{label}</span><span className="font-mono text-foreground">{key === 'imageZoom' ? `${Number(value).toFixed(2)}×` : `${value}%`}</span></span><input type="range" min={min} max={max} step={step} value={value} onChange={(event) => setDraft((current) => ({ ...current, [key]: Number(event.target.value) }))} className="w-full accent-purple-600" /></label>;
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
