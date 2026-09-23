@@ -1,3 +1,6 @@
+# Backend (keep out of frontend repo)
+ecommerece_backend/
+
 # Logs
 logs
 *.log

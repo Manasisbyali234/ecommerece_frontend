@@ -191,7 +191,7 @@ function StoreHomeContent() {
             {afterHeroBanners.map((banner) => (
               <div
                 key={banner.id}
-                className="group relative flex h-40 flex-col justify-between overflow-hidden rounded-xl border p-4 text-white shadow-lg transition-all duration-300 hover:shadow-2xl sm:h-52 sm:rounded-2xl sm:p-5"
+                className="group relative flex min-h-[160px] flex-col justify-between overflow-hidden rounded-xl border p-4 text-white shadow-lg transition-all duration-300 hover:shadow-2xl sm:min-h-[200px] sm:rounded-2xl sm:p-5"
                 style={{ backgroundColor: banner.bgColor || "#090d16" }}
               >
                 {/* Image & Smooth Gradient Mask to prevent text overlap */}
@@ -202,7 +202,13 @@ function StoreHomeContent() {
                         src={banner.imageUrl}
                         alt={banner.title}
                         className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        style={{ objectPosition: banner.imagePosition ?? "center" }}
+                        style={{
+                          objectPosition:
+                            banner.cropPositionX !== undefined || banner.cropPositionY !== undefined
+                              ? `${banner.cropPositionX ?? 50}% ${banner.cropPositionY ?? 50}%`
+                              : banner.imagePosition ?? "center",
+                          transform: `scale(${banner.zoom ?? 1})`,
+                        }}
                       />
                     </div>
                     <div
@@ -220,14 +226,14 @@ function StoreHomeContent() {
                       {banner.subtitle}
                     </Badge>
                   )}
-                  <h3 className="text-base sm:text-lg font-bold tracking-tight text-white leading-snug line-clamp-2">
+                  <h3 className="text-base sm:text-lg font-bold tracking-tight leading-snug line-clamp-2" style={{ color: banner.titleStyle?.color ?? "#ffffff" }}>
                     {banner.title}
                   </h3>
                   {(banner.discountPrice !== undefined || banner.price !== undefined) && (
-                    <div className="flex items-baseline gap-1.5 text-xs font-semibold text-amber-400">
-                      <span>{formatCurrency(banner.discountPrice ?? banner.price!)}</span>
+                    <div className="flex items-baseline gap-1.5 text-xs font-semibold">
+                      <span style={{ color: banner.subtitleStyle?.color ?? "#fbbf24" }}>{formatCurrency(banner.discountPrice ?? banner.price!)}</span>
                       {banner.price && banner.discountPrice && (
-                        <span className="line-through text-slate-400 font-normal text-[11px]">
+                        <span className="line-through font-normal text-[11px]" style={{ color: banner.bodyStyle?.color ?? "#94a3b8" }}>
                           {formatCurrency(banner.price)}
                         </span>
                       )}
@@ -236,7 +242,15 @@ function StoreHomeContent() {
                 </div>
 
                 <div className="relative z-10 pt-2">
-                  <Button asChild size="sm" className="h-8 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-lg shadow-md transition-transform hover:scale-105">
+                  <Button
+                    asChild
+                    size="sm"
+                    className="h-8 px-4 font-bold text-xs rounded-lg shadow-md transition-transform hover:scale-105"
+                    style={{
+                      backgroundColor: banner.ctaBgColor ?? undefined,
+                      color: banner.ctaTextColor ?? undefined,
+                    }}
+                  >
                     <Link href={banner.ctaUrl || "/#products"}>
                       {banner.ctaLabel || "Shop Now"} <ArrowRight className="ml-1 h-3 w-3" />
                     </Link>
@@ -534,18 +548,18 @@ function StoreHomeContent() {
                 <div className="flex flex-wrap items-center gap-4 pt-1">
                   {(afterCategoryBanner.price !== undefined || afterCategoryBanner.discountPrice !== undefined) && (
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl sm:text-3xl font-black text-amber-400">
+                      <span className="text-2xl sm:text-3xl font-black" style={{ color: afterCategoryBanner.subtitleStyle?.color ?? "#fbbf24" }}>
                         {formatCurrency(afterCategoryBanner.discountPrice ?? afterCategoryBanner.price!)}
                       </span>
                       {afterCategoryBanner.discountPrice && afterCategoryBanner.price && (
-                        <span className="text-sm text-slate-400 line-through font-semibold">
+                        <span className="text-sm line-through font-semibold" style={{ color: afterCategoryBanner.bodyStyle?.color ?? "#94a3b8" }}>
                           {formatCurrency(afterCategoryBanner.price)}
                         </span>
                       )}
                     </div>
                   )}
 
-                  <Button asChild size="sm" className="h-9 px-5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-lg shadow-md transition-transform hover:scale-105">
+                  <Button asChild size="sm" className="h-9 px-5 font-black text-xs rounded-lg shadow-md transition-transform hover:scale-105" style={{ backgroundColor: afterCategoryBanner.ctaBgColor ?? "#f59e0b", color: afterCategoryBanner.ctaTextColor ?? "#0f172a" }}>
                     <Link href={afterCategoryBanner.ctaUrl || "/#products"}>
                       {afterCategoryBanner.ctaLabel || "Shop Flash Deal"} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Link>
@@ -561,7 +575,13 @@ function StoreHomeContent() {
                       src={afterCategoryBanner.imageUrl}
                       alt={afterCategoryBanner.title}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      style={{ objectPosition: afterCategoryBanner.imagePosition ?? "center" }}
+                      style={{
+                        objectPosition:
+                          afterCategoryBanner.cropPositionX !== undefined || afterCategoryBanner.cropPositionY !== undefined
+                            ? `${afterCategoryBanner.cropPositionX ?? 50}% ${afterCategoryBanner.cropPositionY ?? 50}%`
+                            : afterCategoryBanner.imagePosition ?? "center",
+                        transform: `scale(${afterCategoryBanner.zoom ?? 1})`,
+                      }}
                     />
                   </div>
                 </div>
@@ -1019,18 +1039,18 @@ function StoreHomeContent() {
                 <div className="flex flex-wrap items-center gap-4 pt-1">
                   {(afterMegaDealsBanner.price !== undefined || afterMegaDealsBanner.discountPrice !== undefined) && (
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl sm:text-3xl font-black text-emerald-400">
+                      <span className="text-2xl sm:text-3xl font-black" style={{ color: afterMegaDealsBanner.subtitleStyle?.color ?? "#34d399" }}>
                         {formatCurrency(afterMegaDealsBanner.discountPrice ?? afterMegaDealsBanner.price!)}
                       </span>
                       {afterMegaDealsBanner.discountPrice && afterMegaDealsBanner.price && (
-                        <span className="text-sm text-slate-400 line-through font-semibold">
+                        <span className="text-sm line-through font-semibold" style={{ color: afterMegaDealsBanner.bodyStyle?.color ?? "#94a3b8" }}>
                           {formatCurrency(afterMegaDealsBanner.price)}
                         </span>
                       )}
                     </div>
                   )}
 
-                  <Button asChild size="sm" className="h-9 px-5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-lg shadow-md transition-transform hover:scale-105">
+                  <Button asChild size="sm" className="h-9 px-5 font-black text-xs rounded-lg shadow-md transition-transform hover:scale-105" style={{ backgroundColor: afterMegaDealsBanner.ctaBgColor ?? "#10b981", color: afterMegaDealsBanner.ctaTextColor ?? "#0f172a" }}>
                     <Link href={afterMegaDealsBanner.ctaUrl || "/#products"}>
                       {afterMegaDealsBanner.ctaLabel || "Explore Now"} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </Link>
@@ -1046,7 +1066,13 @@ function StoreHomeContent() {
                       src={afterMegaDealsBanner.imageUrl}
                       alt={afterMegaDealsBanner.title}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      style={{ objectPosition: afterMegaDealsBanner.imagePosition ?? "center" }}
+                      style={{
+                        objectPosition:
+                          afterMegaDealsBanner.cropPositionX !== undefined || afterMegaDealsBanner.cropPositionY !== undefined
+                            ? `${afterMegaDealsBanner.cropPositionX ?? 50}% ${afterMegaDealsBanner.cropPositionY ?? 50}%`
+                            : afterMegaDealsBanner.imagePosition ?? "center",
+                        transform: `scale(${afterMegaDealsBanner.zoom ?? 1})`,
+                      }}
                     />
                   </div>
                 </div>

@@ -114,16 +114,35 @@ export default function AdminUsersPage() {
   const [roleDesc, setRoleDesc] = useState("");
   const [rolePerms, setRolePerms] = useState<ModulePermissions>(createFullPermissions());
 
-  useEffect(() => {
+  const parsePermissions = (rawPerms: unknown): ModulePermissions => {
+    const perms: ModulePermissions = {};
+    MODULE_DEFINITIONS.forEach((m) => {
+      perms[m.key] = { create: false, read: false, update: false, delete: false };
+    });
+    if (Array.isArray(rawPerms)) {
+      (rawPerms as string[]).forEach((p) => {
+        const [mod, action] = p.split(":");
+        if (mod && action && perms[mod] && action in perms[mod]) {
+          (perms[mod] as Record<string, boolean>)[action] = true;
+        }
+      });
+    }
+    return perms;
+  };
+
+  const loadUsersAndRoles = () =>
     Promise.all([api<{ items: Array<Record<string, unknown>> }>("/admin/users"), api<{ items: Array<Record<string, unknown>> }>("/admin/roles")]).then(([userResult, roleResult]) => {
-      const loadedRoles: Role[] = roleResult.items.map((role) => ({ id: String(role.id), name: String(role.name), description: String(role.description || ""), isSuperAdmin: Boolean(role.isSuperAdmin), permissions: createFullPermissions() }));
+      const loadedRoles: Role[] = roleResult.items.map((role) => ({ id: String(role.id), name: String(role.name), description: String(role.description || ""), isSuperAdmin: Boolean(role.isSuperAdmin), permissions: Boolean(role.isSuperAdmin) ? createFullPermissions() : parsePermissions(role.permissions) }));
       const fallbackRole = loadedRoles.find((role) => role.name.toLowerCase().includes("admin"))?.id || "admin";
       store.replaceRoles(loadedRoles);
       store.replaceAdminUsers(userResult.items.map((user) => {
         const roleRef = user.roleRef as Record<string, unknown> | null;
         return { id: String(user.id), name: String(user.fullName || ""), email: String(user.email || ""), roleId: String(roleRef?.id || user.role || fallbackRole), status: user.status === "disabled" ? "inactive" : "active", lastLogin: String(user.updatedAt || "Never") };
       }));
-    }).catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load administrator data"));
+    });
+
+  useEffect(() => {
+    loadUsersAndRoles().catch((error) => toast.error(error instanceof Error ? error.message : "Unable to load administrator data"));
   }, []);
 
   const filteredUsers = useMemo(() => {
@@ -237,12 +256,7 @@ export default function AdminUsersPage() {
     setPassword("");
     setConfirmPassword("");
     // Refresh users list from backend
-    Promise.all([api<{ items: Array<Record<string, unknown>> }>("/admin/users"), api<{ items: Array<Record<string, unknown>> }>("/admin/roles")]).then(([userResult, roleResult]) => {
-      const loadedRoles: Role[] = roleResult.items.map((role) => ({ id: String(role.id), name: String(role.name), description: String(role.description || ""), isSuperAdmin: Boolean(role.isSuperAdmin), permissions: createFullPermissions() }));
-      const fallbackRole = loadedRoles.find((r) => r.name.toLowerCase().includes("admin"))?.id || "admin";
-      store.replaceRoles(loadedRoles);
-      store.replaceAdminUsers(userResult.items.map((user) => ({ id: String(user.id), name: String(user.fullName || ""), email: String(user.email || ""), roleId: String((user.roleRef as Record<string,unknown>)?.id || user.role || fallbackRole), status: user.status === "disabled" ? "inactive" : "active", lastLogin: String(user.updatedAt || "Never") })));
-    }).catch(() => undefined);
+    loadUsersAndRoles().catch(() => undefined);
     } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save administrator"); }
   };
 
@@ -270,7 +284,29 @@ export default function AdminUsersPage() {
     setEditingRoleId(role.id);
     setRoleName(role.name);
     setRoleDesc(role.description);
-    setRolePerms(JSON.parse(JSON.stringify(role.permissions)));
+    // Fetch fresh permissions from backend before opening modal
+    api<{ items: Array<Record<string, unknown>> }>("/admin/roles")
+      .then((result) => {
+        const fresh = result.items.find((r) => String(r.id) === role.id);
+        if (fresh) {
+          const perms: ModulePermissions = {};
+          MODULE_DEFINITIONS.forEach((m) => {
+            perms[m.key] = { create: false, read: false, update: false, delete: false };
+          });
+          if (Array.isArray(fresh.permissions)) {
+            (fresh.permissions as string[]).forEach((p) => {
+              const [mod, action] = p.split(":");
+              if (mod && action && perms[mod] && action in perms[mod]) {
+                (perms[mod] as Record<string, boolean>)[action] = true;
+              }
+            });
+          }
+          setRolePerms(perms);
+        } else {
+          setRolePerms(JSON.parse(JSON.stringify(role.permissions)));
+        }
+      })
+      .catch(() => setRolePerms(JSON.parse(JSON.stringify(role.permissions))));
     setRoleModalOpen(true);
   };
 
@@ -412,6 +448,8 @@ export default function AdminUsersPage() {
 
     setRoleModalOpen(false);
     setEditingRoleId(null);
+    // Reload roles from backend to sync parsed permissions
+    loadUsersAndRoles().catch(() => undefined);
     } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to save role"); }
   };
 

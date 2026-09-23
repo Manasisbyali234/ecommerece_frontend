@@ -487,25 +487,23 @@ function OrdersContent() {
 
       {/* CENTERED DIALOG POPUP MODAL FOR ORDER DETAILS */}
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+        <DialogContent className="max-w-2xl">
           {selected && (
             <>
               <DialogHeader className="pb-3 border-b">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <DialogTitle className="text-xl font-extrabold flex items-center gap-2">
-                      <ShoppingBag className="h-5 w-5 text-amber-500" /> Order Details: {selected.orderNumber || selected.id}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <DialogTitle className="text-base font-extrabold flex items-center gap-2">
+                      <ShoppingBag className="h-4 w-4 text-amber-500 shrink-0" />
+                      <span className="truncate">Order: {selected.orderNumber || selected.id}</span>
                     </DialogTitle>
-                    <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                      Customer: <span className="font-bold text-foreground">{selected.customer}</span>{selected.email ? ` (${selected.email})` : ""}
+                    <DialogDescription className="text-xs mt-1 truncate">
+                      {selected.customer}{selected.email ? ` · ${selected.email}` : ""}
                     </DialogDescription>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={`text-xs font-bold uppercase ${statusColor[selected.status]}`}>
-                      {selected.status}
-                    </Badge>
-                  </div>
+                  <Badge variant="outline" className={`text-[10px] font-bold uppercase shrink-0 mt-0.5 ${statusColor[selected.status]}`}>
+                    {selected.status}
+                  </Badge>
                 </div>
               </DialogHeader>
 
@@ -674,7 +672,7 @@ function EmailInvoiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Email invoice</DialogTitle>
           <DialogDescription>

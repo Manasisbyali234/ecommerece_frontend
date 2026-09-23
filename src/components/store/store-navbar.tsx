@@ -410,23 +410,36 @@ export function StoreNavbar() {
 
       {/* ALL CATEGORIES & SUBCATEGORIES HAMBURGER SIDE DRAWER */}
       <Sheet open={allCategoriesDrawerOpen} onOpenChange={setAllCategoriesDrawerOpen}>
-        <SheetContent side="left" className="w-[min(90vw,22rem)] p-0 overflow-y-auto bg-background sm:w-96 [&>button]:top-3 [&>button]:right-3 [&>button]:z-10 [&>button]:rounded-md [&>button]:bg-white/15 [&>button]:p-1 [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:bg-white/25">
+        <SheetContent side="left" className="w-[min(90vw,22rem)] p-0 overflow-y-auto bg-background sm:w-96 [&>button]:hidden">
           {/* Drawer Top Header Banner */}
-          <div className="bg-[#232f3e] text-white pt-10 pb-4 px-4 flex items-center justify-between">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-slate-700/80 flex items-center justify-center text-white font-bold">
-                <User className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="truncate text-sm font-bold">Hello, {userLoggedIn ? loggedInPhone : "Customer"}</h3>
-                <p className="text-[11px] text-slate-300">Welcome to {headerConfig.logo?.text || "our Store"}</p>
-              </div>
+          <div className="bg-[#232f3e] text-white px-4 pt-4 pb-4">
+            {/* Close button row */}
+            <div className="flex items-center justify-end mb-2">
+              <button
+                onClick={() => setAllCategoriesDrawerOpen(false)}
+                className="rounded-md bg-white/15 p-1 text-white hover:bg-white/25 transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            {userLoggedIn ? (
-              <Link href="/account" onClick={() => setAllCategoriesDrawerOpen(false)} className="shrink-0 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-400">My Account</Link>
-            ) : (
-              <button onClick={() => { setAllCategoriesDrawerOpen(false); setOtpStep("mobile"); setLoginModalOpen(true); }} className="shrink-0 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-400">Login</button>
-            )}
+            {/* User info + action button row */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="h-10 w-10 shrink-0 rounded-full bg-slate-700/80 flex items-center justify-center text-white font-bold">
+                  <User className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-bold">Hello, {userLoggedIn ? loggedInPhone : "Customer"}</h3>
+                  <p className="text-[11px] text-slate-300">Welcome to {headerConfig.logo?.text || "our Store"}</p>
+                </div>
+              </div>
+              {userLoggedIn ? (
+                <Link href="/account" onClick={() => setAllCategoriesDrawerOpen(false)} className="shrink-0 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-400">My Account</Link>
+              ) : (
+                <button onClick={() => { setAllCategoriesDrawerOpen(false); setOtpStep("mobile"); setLoginModalOpen(true); }} className="shrink-0 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 transition-colors hover:bg-amber-400">Login</button>
+              )}
+            </div>
           </div>
 
           <div className="p-4 space-y-6">

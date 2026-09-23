@@ -115,7 +115,7 @@ export function HeroCarousel() {
 
   // Full-Width & Full-Height Product Image Renderer (No card wrapper)
   const fullProductImage = (
-    <div className="relative h-full min-h-[210px] w-full overflow-hidden rounded-xl group sm:min-h-[340px] sm:rounded-3xl lg:min-h-[480px]">
+    <div className="relative h-full min-h-[200px] w-full overflow-hidden rounded-xl group sm:min-h-[300px] sm:rounded-3xl lg:min-h-[380px]">
       <img
         src={
           currentBanner.imageUrl ||
@@ -164,11 +164,11 @@ export function HeroCarousel() {
         <div className={`flex flex-wrap items-baseline gap-2 pt-1 sm:gap-3 ${alignCenter ? "justify-center" : ""}`}>
           {currentBanner.discountPrice !== undefined ? (
             <>
-              <span className="text-2xl font-black text-amber-400 tracking-tight sm:text-4xl">
+              <span className="text-2xl font-black tracking-tight sm:text-4xl" style={{ color: currentBanner.subtitleStyle?.color ?? "#fbbf24" }}>
                 {formatCurrency(currentBanner.discountPrice)}
               </span>
               {currentBanner.price !== undefined && (
-                <span className="text-base text-slate-300 line-through font-semibold">
+                <span className="text-base line-through font-semibold" style={{ color: currentBanner.bodyStyle?.color ?? "#cbd5e1" }}>
                   {formatCurrency(currentBanner.price)}
                 </span>
               )}
@@ -214,7 +214,7 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative flex h-[520px] w-full shrink-0 items-center overflow-hidden text-white transition-colors duration-700 sm:h-[600px] lg:h-[640px]"
+      className="relative flex min-h-[260px] w-full shrink-0 items-center overflow-hidden text-white transition-colors duration-700 sm:min-h-[340px] lg:min-h-[420px]"
       style={{ backgroundColor: currentBanner.bgColor || "#090d16" }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}

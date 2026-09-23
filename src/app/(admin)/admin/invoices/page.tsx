@@ -1195,7 +1195,7 @@ function EmailInvoiceDialog({
       return;
     }
     setSending(true);
-    try { await api(`/admin/invoices/${invoice.id}/email`, { method: "POST" }); }
+    try { await api(`/admin/invoices/${invoice.id}/email`, { method: "POST", body: JSON.stringify({ to }) }); }
     catch (error) { setSending(false); toast.error(error instanceof Error ? error.message : "Unable to send invoice email"); return; }
     const now = new Date().toISOString().slice(0, 16).replace("T", " ");
     store.updateInvoice(invoice.id, { emailedAt: now });
