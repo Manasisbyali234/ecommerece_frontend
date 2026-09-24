@@ -394,6 +394,8 @@ export default function AdminBrandsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredBrands.map((brand) => {
             const productCount = getProductCount(brand.id, brand.name);
+            return (
+              <Card key={brand.id} className={`border shadow-xs overflow-hidden transition-all ${
                 brand.active ? "" : "opacity-75 border-dashed"
               }`}>
                 <CardContent className="p-5 space-y-4">
@@ -511,6 +513,8 @@ export default function AdminBrandsPage() {
             <TableBody>
               {filteredBrands.map((brand) => {
                 const productCount = getProductCount(brand.id, brand.name);
+                return (
+                  <TableRow key={brand.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-lg overflow-hidden border bg-background flex items-center justify-center shrink-0 shadow-3xs">
