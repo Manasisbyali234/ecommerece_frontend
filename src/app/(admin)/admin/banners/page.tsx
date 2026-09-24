@@ -230,10 +230,36 @@ export default function AdminBannersPage() {
     setOpen(true);
   };
 
+  // Returns actual pixel dimensions of a File via a temporary object URL.
+  const getImageDimensions = (file: File): Promise<{ width: number; height: number }> =>
+    new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve({ width: img.naturalWidth, height: img.naturalHeight }); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Cannot read image dimensions")); };
+      img.src = url;
+    });
+
   // Banner assets are stored under banners/ in Cloudflare R2.
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Validate dimensions if the admin has specified required width/height.
+    if (draft.bannerWidth || draft.bannerHeight) {
+      try {
+        const { width, height } = await getImageDimensions(file);
+        if (draft.bannerWidth && width !== draft.bannerWidth) {
+          toast.error(`Image width must be exactly ${draft.bannerWidth}px (uploaded: ${width}px)`);
+          e.target.value = "";
+          return;
+        }
+        if (draft.bannerHeight && height !== draft.bannerHeight) {
+          toast.error(`Image height must be exactly ${draft.bannerHeight}px (uploaded: ${height}px)`);
+          e.target.value = "";
+          return;
+        }
+      } catch { toast.error("Could not verify image dimensions"); e.target.value = ""; return; }
+    }
     try {
       const imageUrl = await uploadImage("banners", file);
       setDraft((prev) => ({ ...prev, imageUrl }));
@@ -1250,7 +1276,15 @@ export default function AdminBannersPage() {
                   <Label className="font-semibold text-sm flex items-center gap-1.5">
                     <Upload className="h-4 w-4 text-primary" /> Product Image Source & Upload
                   </Label>
-                  <span className="text-xs text-muted-foreground">Recommended: WEBP</span>
+                  <span className="text-xs text-muted-foreground">
+                    {draft.bannerWidth && draft.bannerHeight
+                      ? `Required: ${draft.bannerWidth} × ${draft.bannerHeight}px`
+                      : draft.bannerWidth
+                      ? `Required width: ${draft.bannerWidth}px`
+                      : draft.bannerHeight
+                      ? `Required height: ${draft.bannerHeight}px`
+                      : "Recommended: WEBP"}
+                  </span>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -1260,6 +1294,11 @@ export default function AdminBannersPage() {
                   >
                     <Upload className="h-6 w-6 text-muted-foreground mb-1" />
                     <span className="text-xs font-semibold text-foreground">Click to Upload Image</span>
+                    {(draft.bannerWidth || draft.bannerHeight) && (
+                      <span className="text-[11px] text-amber-500 font-medium mt-0.5">
+                        Must be exactly {draft.bannerWidth ?? "any"} × {draft.bannerHeight ?? "any"}px
+                      </span>
+                    )}
                     <input
                       ref={fileInputRef}
                       type="file"

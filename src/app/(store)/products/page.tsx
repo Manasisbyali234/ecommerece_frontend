@@ -18,15 +18,15 @@ import {
 import { toast } from "sonner";
 import { formatCurrency, type Product } from "@/lib/mock-data";
 import { useProducts } from "@/hooks/use-products";
+import { useBrands } from "@/hooks/use-brands";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-// Helper brand mapping for items without explicit brand
-function getBrandName(product: Product): string {
-  if (product.brand) return product.brand;
+// Fallback brand name when no brand is set (used before brands load)
+function getFallbackBrand(product: Product): string {
   if (product.category === "Audio") return "boAt";
   if (product.category === "Electronics") return "NOISE";
   if (product.category === "Footwear") return "Nike";
@@ -101,11 +101,11 @@ function isAudienceSearch(query: string) {
   return normalized.length > 0 && Object.values(audienceAliases).some((aliases) => aliases.includes(normalized));
 }
 
-function searchableProductText(product: Product) {
+function searchableProductText(product: Product, resolvedBrand?: string) {
   return [
     product.name,
     product.sku,
-    getBrandName(product),
+    resolvedBrand || product.brand,
     product.category,
     product.subCategory,
     product.description,
@@ -173,6 +173,7 @@ const categorySecondaryFilters: Record<string, SecondaryFilterConfig[]> = {
 
 function ProductsContent() {
   const initialProducts = useProducts();
+  const { resolveBrandName } = useBrands();
   const searchParams = useSearchParams();
   const { addItem, items: cartItems, openCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -257,15 +258,20 @@ function ProductsContent() {
     setOpenSecondaryDropdown(null);
   }, [selectedCategory]);
 
+  function getResolvedBrand(product: Product): string {
+    const resolved = resolveBrandName(product.brand);
+    return resolved || getFallbackBrand(product);
+  }
+
   // Extract all unique brands & counts
   const brandCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     initialProducts.forEach((p) => {
-      const b = getBrandName(p);
-      counts[b] = (counts[b] || 0) + 1;
+      const b = getResolvedBrand(p);
+      if (b) counts[b] = (counts[b] || 0) + 1;
     });
     return counts;
-  }, [initialProducts]);
+  }, [initialProducts, resolveBrandName]);
 
   // Filtered and Sorted Products
   const filteredProducts = useMemo(() => {
@@ -276,7 +282,7 @@ function ProductsContent() {
         const audienceQuery = normalizeAudience(searchQuery);
         const matchesSearch = isAudienceSearch(searchQuery)
           ? matchesAudience(product, audienceQuery)
-          : searchableProductText(product).includes(query);
+          : searchableProductText(product, getResolvedBrand(product)).includes(query);
         if (!matchesSearch) return false;
       }
 
@@ -296,7 +302,7 @@ function ProductsContent() {
 
       // 4. Brand Filter
       if (selectedBrands.length > 0) {
-        const brand = getBrandName(product);
+        const brand = getResolvedBrand(product);
         if (!selectedBrands.includes(brand)) return false;
       }
 
@@ -903,7 +909,7 @@ function ProductsContent() {
                 {filteredProducts.map((product) => {
                   const mrp = product.originalPrice || Math.round(product.price * 1.28);
                   const discountPercent = Math.round(((mrp - product.price) / mrp) * 100);
-                  const brand = getBrandName(product);
+                  const brand = getResolvedBrand(product);
                   const isWishlisted = isInWishlist(product.id);
                   const isInCart = cartItems.some((item) => item.product.id === product.id);
 

@@ -87,6 +87,7 @@ import { toast } from "sonner";
 import { formatCurrency, defaultAdditionalInfo, defaultAboutSections, type Product, type AboutProductSection, type AdditionalInfoSection } from "@/lib/mock-data";
 import { api, uploadImage } from "@/lib/api";
 import { useStore, type NavCategoryGroup } from "@/lib/store";
+import { useBrands } from "@/hooks/use-brands";
 
 const statusColor: Record<Product["status"], string> = {
   active: "bg-emerald-600 dark:bg-emerald-500 text-white border-transparent hover:bg-emerald-600/90 shadow-sm",
@@ -181,6 +182,7 @@ export default function ProductsPage() {
   const navCategories = useStore((s) => s.navCategories);
   const managedCategories = useStore((s) => s.categories);
   const managedSubCategories = useStore((s) => s.subCategories);
+  const { brands: brandOptions, loading: brandsLoading, resolveBrandName } = useBrands(true);
   const [items, setItems] = useState<Product[]>([]);
   useEffect(() => {
     api<{ items: Product[] }>("/admin/products")
@@ -367,7 +369,7 @@ export default function ProductsPage() {
         !q ||
         p.name.toLowerCase().includes(q.toLowerCase()) ||
         p.sku.toLowerCase().includes(q.toLowerCase()) ||
-        p.brand?.toLowerCase().includes(q.toLowerCase()) ||
+        resolveBrandName(p.brand).toLowerCase().includes(q.toLowerCase()) ||
         p.tags?.some((t) => t.toLowerCase().includes(q.toLowerCase()));
       const matchStatus = status === "all" || p.status === status;
       const matchCategory = categoryFilter === "all" || p.category === categoryFilter;
@@ -1273,7 +1275,7 @@ export default function ProductsPage() {
                       <img src={p.image} alt={p.name} className="h-10 w-10 rounded-lg object-cover border shrink-0" />
                       <div className="min-w-0">
                         <h4 className="font-bold text-xs text-foreground truncate">{p.name}</h4>
-                        <span className="text-[10px] text-muted-foreground">{p.brand}</span>
+                        <span className="text-[10px] text-muted-foreground">{resolveBrandName(p.brand)}</span>
                       </div>
                     </div>
                   </TableCell>
@@ -1512,12 +1514,27 @@ export default function ProductsPage() {
                   {/* Brand Name */}
                   <div className="space-y-1">
                     <Label className="text-xs font-bold text-foreground">Brand Name</Label>
-                    <Input
-                      placeholder="e.g. Your Brand / Sony / Nike"
+                    <Select
                       value={formData.brand || ""}
-                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                      className="text-xs"
-                    />
+                      onValueChange={(val) => setFormData({ ...formData, brand: val === "__none__" ? "" : val })}
+                    >
+                      <SelectTrigger className="text-xs font-semibold">
+                        <SelectValue placeholder={brandsLoading ? "Loading brands…" : brandOptions.length === 0 ? "No brands available" : "Select Brand"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— No Brand —</SelectItem>
+                        {brandOptions.map((b) => (
+                          <SelectItem key={b.id} value={b.id}>
+                            {b.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!brandsLoading && brandOptions.length === 0 && (
+                      <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                        No active brands found. Create brands in Admin → Brands first.
+                      </p>
+                    )}
                   </div>
 
                   {/* Gender / Audience */}

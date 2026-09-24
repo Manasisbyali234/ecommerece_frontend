@@ -46,6 +46,7 @@ import {
 import { toast } from "sonner";
 import { formatCurrency, defaultAboutSections, defaultAdditionalInfo, type Product, type ProductReview, type AboutProductSection, type AdditionalInfoSection } from "@/lib/mock-data";
 import { useProducts } from "@/hooks/use-products";
+import { useBrands } from "@/hooks/use-brands";
 import { useCart } from "@/lib/cart-context";
 import { api, getAccessToken } from "@/lib/api";
 import { useWishlist } from "@/lib/wishlist-context";
@@ -99,6 +100,7 @@ function orderItemProductId(item: Record<string, unknown>) {
 
 export default function ProductDetailPage({ params }: PageProps) {
   const products = useProducts();
+  const { resolveBrandName } = useBrands();
   const resolvedParams = use(params);
   const router = useRouter();
   const { addItem, openCart, items: cartItems } = useCart();
@@ -148,8 +150,9 @@ export default function ProductDetailPage({ params }: PageProps) {
   const [isSimilarHovered, setIsSimilarHovered] = useState(false);
 
   const similarProducts = useMemo(() => {
+    const resolvedBrand = resolveBrandName(product.brand);
     let matches = products.filter(
-      (p) => p.id !== product.id && (p.category === product.category || (product.brand && p.brand === product.brand))
+      (p) => p.id !== product.id && (p.category === product.category || (resolvedBrand && resolveBrandName(p.brand) === resolvedBrand))
     );
     if (matches.length < 6) {
       const fallback = products.filter((p) => p.id !== product.id && !matches.some((m) => m.id === p.id));
@@ -1174,7 +1177,7 @@ export default function ProductDetailPage({ params }: PageProps) {
             >
               {(product.additionalInfoSections && product.additionalInfoSections.length > 0
                 ? product.additionalInfoSections
-                : defaultAdditionalInfo(product)
+                : defaultAdditionalInfo({ ...product, brand: resolveBrandName(product.brand) })
               ).map((section: AdditionalInfoSection) => (
                 <AccordionItem key={section.id} value={section.id} className="border rounded-xl px-4 bg-background shadow-2xs">
                   <AccordionTrigger className="hover:no-underline font-bold text-sm">

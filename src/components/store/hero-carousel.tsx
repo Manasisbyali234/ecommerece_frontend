@@ -115,7 +115,7 @@ export function HeroCarousel() {
 
   // Full-Width & Full-Height Product Image Renderer (No card wrapper)
   const fullProductImage = (
-    <div className="relative h-full min-h-[200px] w-full overflow-hidden rounded-xl group sm:min-h-[300px] sm:rounded-3xl lg:min-h-[380px]">
+    <div className="relative h-full w-full overflow-hidden rounded-xl group sm:rounded-3xl">
       <img
         src={
           currentBanner.imageUrl ||
@@ -214,7 +214,7 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative flex min-h-[260px] w-full shrink-0 items-center overflow-hidden text-white transition-colors duration-700 sm:min-h-[340px] lg:min-h-[420px]"
+      className="relative flex h-[300px] sm:h-[320px] w-full shrink-0 items-center overflow-hidden text-white transition-colors duration-700"
       style={{ backgroundColor: currentBanner.bgColor || "#090d16" }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}

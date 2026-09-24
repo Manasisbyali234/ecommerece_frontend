@@ -174,9 +174,9 @@ export default function AdminBrandsPage() {
     };
   }, [brands]);
 
-  // Helper to count associated products dynamically
-  const getProductCount = (brandName: string) => {
-    return products.filter((p) => p.brand?.toLowerCase() === brandName.toLowerCase()).length;
+  // Helper to count associated products dynamically — matches by brand ID or legacy brand name
+  const getProductCount = (brandId: string, brandName: string) => {
+    return products.filter((p) => p.brand === brandId || p.brand?.toLowerCase() === brandName.toLowerCase()).length;
   };
 
   // Toggle active status
@@ -393,10 +393,7 @@ export default function AdminBrandsPage() {
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredBrands.map((brand) => {
-            const productCount = getProductCount(brand.name);
-
-            return (
-              <Card key={brand.id} className={`flex flex-col justify-between overflow-hidden border shadow-xs hover:shadow-md transition-all ${
+            const productCount = getProductCount(brand.id, brand.name);
                 brand.active ? "" : "opacity-75 border-dashed"
               }`}>
                 <CardContent className="p-5 space-y-4">
@@ -513,9 +510,7 @@ export default function AdminBrandsPage() {
             </TableHeader>
             <TableBody>
               {filteredBrands.map((brand) => {
-                const productCount = getProductCount(brand.name);
-                return (
-                  <TableRow key={brand.id}>
+                const productCount = getProductCount(brand.id, brand.name);
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-lg overflow-hidden border bg-background flex items-center justify-center shrink-0 shadow-3xs">
@@ -746,7 +741,7 @@ export default function AdminBrandsPage() {
                 </TableHeader>
                 <TableBody>
                   {products
-                    .filter((p) => p.brand?.toLowerCase() === detailsBrand.name.toLowerCase())
+                    .filter((p) => p.brand === detailsBrand.id || p.brand?.toLowerCase() === detailsBrand.name.toLowerCase())
                     .map((p) => (
                       <TableRow key={p.id}>
                         <TableCell>
