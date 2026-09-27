@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   ArrowUpRight,
-  ArrowDownRight,
   IndianRupee,
   Package,
   ShoppingCart,
@@ -122,154 +121,6 @@ const monthOptions = [
 
 const yearOptions = ["2026", "2025", "2024", "2023", "2022"];
 
-// Timeline-based Revenue Datasets for Recharts
-const presetRevenueSeries: Record<"today" | "week" | "month" | "year", { day: string; revenue: number }[]> = {
-  today: [
-    { day: "00:00", revenue: 1200 },
-    { day: "04:00", revenue: 800 },
-    { day: "08:00", revenue: 2400 },
-    { day: "12:00", revenue: 4100 },
-    { day: "16:00", revenue: 3800 },
-    { day: "20:00", revenue: 2950 },
-    { day: "23:59", revenue: 1400 },
-  ],
-  week: [
-    { day: "Mon", revenue: 14200 },
-    { day: "Tue", revenue: 18500 },
-    { day: "Wed", revenue: 16800 },
-    { day: "Thu", revenue: 22400 },
-    { day: "Fri", revenue: 26100 },
-    { day: "Sat", revenue: 29500 },
-    { day: "Sun", revenue: 24800 },
-  ],
-  month: [
-    { day: "Week 1", revenue: 98000 },
-    { day: "Week 2", revenue: 114000 },
-    { day: "Week 3", revenue: 132000 },
-    { day: "Week 4", revenue: 141400 },
-  ],
-  year: [
-    { day: "Jan", revenue: 380000 },
-    { day: "Feb", revenue: 420000 },
-    { day: "Mar", revenue: 460000 },
-    { day: "Apr", revenue: 490000 },
-    { day: "May", revenue: 530000 },
-    { day: "Jun", revenue: 580000 },
-    { day: "Jul", revenue: 640000 },
-    { day: "Aug", revenue: 710000 },
-    { day: "Sep", revenue: 690000 },
-    { day: "Oct", revenue: 780000 },
-    { day: "Nov", revenue: 890000 },
-    { day: "Dec", revenue: 940000 },
-  ],
-};
-
-// Base Raw category stats template
-const baseCategoryStatsData = [
-  {
-    id: "audio",
-    name: "Audio & Acoustics",
-    categoryKey: "Audio",
-    icon: Headphones,
-    color: "text-indigo-500",
-    bg: "bg-indigo-500/10",
-    border: "border-indigo-500/20",
-    topProduct: "Aurora Wireless Headphones",
-    activeProducts: 14,
-    metrics: {
-      today: { revenue: 6800, orders: 8, delta: "+18.4%", share: 42 },
-      week: { revenue: 58400, orders: 64, delta: "+16.2%", share: 39 },
-      month: { revenue: 215000, orders: 240, delta: "+24.1%", share: 44 },
-      year: { revenue: 2450000, orders: 2650, delta: "+34.5%", share: 45 },
-    },
-  },
-  {
-    id: "footwear",
-    name: "Footwear & Athletic",
-    categoryKey: "Footwear",
-    icon: Footprints,
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/20",
-    topProduct: "Urban Runner Sneakers",
-    activeProducts: 18,
-    metrics: {
-      today: { revenue: 4200, orders: 4, delta: "+12.1%", share: 26 },
-      week: { revenue: 38200, orders: 36, delta: "+14.8%", share: 25 },
-      month: { revenue: 132000, orders: 142, delta: "+18.3%", share: 27 },
-      year: { revenue: 1480000, orders: 1540, delta: "+28.2%", share: 27 },
-    },
-  },
-  {
-    id: "electronics",
-    name: "Electronics & Wearables",
-    categoryKey: "Electronics",
-    icon: Watch,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-    topProduct: "Pulse Smartwatch Series X",
-    activeProducts: 12,
-    metrics: {
-      today: { revenue: 2800, orders: 3, delta: "+8.5%", share: 17 },
-      week: { revenue: 26500, orders: 24, delta: "+11.4%", share: 18 },
-      month: { revenue: 88000, orders: 92, delta: "+15.6%", share: 18 },
-      year: { revenue: 980000, orders: 990, delta: "+22.4%", share: 18 },
-    },
-  },
-  {
-    id: "apparel",
-    name: "Apparel & Fashion",
-    categoryKey: "Apparel",
-    icon: Shirt,
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20",
-    topProduct: "Oversized Heavyweight Hoodie",
-    activeProducts: 22,
-    metrics: {
-      today: { revenue: 1450, orders: 2, delta: "+5.2%", share: 9 },
-      week: { revenue: 14800, orders: 18, delta: "+9.1%", share: 10 },
-      month: { revenue: 54000, orders: 74, delta: "+12.8%", share: 11 },
-      year: { revenue: 610000, orders: 850, delta: "+19.1%", share: 11 },
-    },
-  },
-  {
-    id: "bags",
-    name: "Bags & Luggage",
-    categoryKey: "Bags & Luggage",
-    icon: Briefcase,
-    color: "text-rose-500",
-    bg: "bg-rose-500/10",
-    border: "border-rose-500/20",
-    topProduct: "Nomad Leather Backpack",
-    activeProducts: 8,
-    metrics: {
-      today: { revenue: 2190, orders: 1, delta: "+15.0%", share: 13 },
-      week: { revenue: 8760, orders: 4, delta: "+7.4%", share: 6 },
-      month: { revenue: 32800, orders: 16, delta: "+10.5%", share: 6 },
-      year: { revenue: 360000, orders: 175, delta: "+16.8%", share: 6 },
-    },
-  },
-  {
-    id: "home",
-    name: "Home & Lifestyle",
-    categoryKey: "Home & Lifestyle",
-    icon: Home,
-    color: "text-cyan-500",
-    bg: "bg-cyan-500/10",
-    border: "border-cyan-500/20",
-    topProduct: "Minimalist Ceramic Mug Set",
-    activeProducts: 10,
-    metrics: {
-      today: { revenue: 890, orders: 2, delta: "+3.2%", share: 5 },
-      week: { revenue: 5340, orders: 12, delta: "+6.8%", share: 4 },
-      month: { revenue: 18500, orders: 42, delta: "+8.9%", share: 4 },
-      year: { revenue: 210000, orders: 480, delta: "+14.2%", share: 4 },
-    },
-  },
-];
-
 export default function AdminDashboardPage() {
   const router = useRouter();
   const currentOrders = useStore((s) => s.orders);
@@ -342,322 +193,221 @@ export default function AdminDashboardPage() {
     }
   }, [timeline, startDate, endDate, selectedMonth, selectedMonthYear, selectedYear]);
 
-  // Dynamic Chart Revenue Series based on Timeline or Custom Filters
+  // Today's date string (YYYY-MM-DD)
+  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  // Timeline-aware Revenue Series for Chart
   const currentRevenueSeries = useMemo(() => {
-    const revenueByDay = new Map<string, number>();
-    currentOrders.forEach((order) => revenueByDay.set(order.date || "Unknown", (revenueByDay.get(order.date || "Unknown") || 0) + order.total));
-    return Array.from(revenueByDay, ([day, revenue]) => ({ day, revenue })).slice(-12);
-  }, [currentOrders]);
+    let filtered: typeof currentOrders = [];
 
-  // Dynamic Overall KPI Stats computed according to Timeline / Custom Range
-  const mockStats = useMemo(() => {
-    switch (timeline) {
-      case "today":
-        return [
-          {
-            label: "Total Revenue (Today)",
-            value: formatCurrency(16650),
-            icon: IndianRupee,
-            delta: "+18.4%",
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
-            periodText: "vs yesterday",
-          },
-          {
-            label: "Total Orders (Today)",
-            value: "20",
-            icon: ShoppingCart,
-            delta: "+15.2%",
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            periodText: "vs yesterday",
-          },
-          {
-            label: "Avg Order Value (AOV)",
-            value: formatCurrency(832),
-            icon: Package,
-            delta: "+5.4%",
-            color: "text-purple-500",
-            bg: "bg-purple-500/10",
-            periodText: "vs 24h avg",
-          },
-          {
-            label: "Store Conversion Rate",
-            value: "4.12%",
-            icon: TrendingUp,
-            delta: "+0.8%",
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
-            periodText: "vs yesterday",
-          },
-        ];
-
-      case "month":
-        return [
-          {
-            label: "Total Revenue (This Month)",
-            value: formatCurrency(540300),
-            icon: IndianRupee,
-            delta: "+22.6%",
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
-            periodText: "vs last month",
-          },
-          {
-            label: "Total Orders (This Month)",
-            value: "680",
-            icon: ShoppingCart,
-            delta: "+18.3%",
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            periodText: "vs last month",
-          },
-          {
-            label: "Avg Order Value (AOV)",
-            value: formatCurrency(794),
-            icon: Package,
-            delta: "+6.8%",
-            color: "text-purple-500",
-            bg: "bg-purple-500/10",
-            periodText: "vs last month",
-          },
-          {
-            label: "Store Conversion Rate",
-            value: "3.95%",
-            icon: TrendingUp,
-            delta: "+1.1%",
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
-            periodText: "vs last month",
-          },
-        ];
-
-      case "year":
-        return [
-          {
-            label: "Total Revenue (This Year)",
-            value: formatCurrency(6090000),
-            icon: IndianRupee,
-            delta: "+31.8%",
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
-            periodText: "vs last year",
-          },
-          {
-            label: "Total Orders (This Year)",
-            value: "7,680",
-            icon: ShoppingCart,
-            delta: "+28.4%",
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            periodText: "vs last year",
-          },
-          {
-            label: "Avg Order Value (AOV)",
-            value: formatCurrency(792),
-            icon: Package,
-            delta: "+8.2%",
-            color: "text-purple-500",
-            bg: "bg-purple-500/10",
-            periodText: "vs last year",
-          },
-          {
-            label: "Store Conversion Rate",
-            value: "4.08%",
-            icon: TrendingUp,
-            delta: "+1.4%",
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
-            periodText: "vs last year",
-          },
-        ];
-
-      case "custom_date":
-        return [
-          {
-            label: `Revenue (${startDate} - ${endDate})`,
-            value: formatCurrency(68500),
-            icon: IndianRupee,
-            delta: "+16.8%",
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
-            periodText: "custom range",
-          },
-          {
-            label: "Custom Range Orders",
-            value: "86",
-            icon: ShoppingCart,
-            delta: "+12.4%",
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            periodText: "custom range",
-          },
-          {
-            label: "Avg Order Value",
-            value: formatCurrency(796),
-            icon: Package,
-            delta: "+5.1%",
-            color: "text-purple-500",
-            bg: "bg-purple-500/10",
-            periodText: "custom range",
-          },
-          {
-            label: "Store Conversion Rate",
-            value: "4.02%",
-            icon: TrendingUp,
-            delta: "+0.9%",
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
-            periodText: "custom range",
-          },
-        ];
-
-      case "custom_month": {
-        const mLabel = monthOptions.find((m) => m.value === selectedMonth)?.label || "Month";
-        return [
-          {
-            label: `Revenue (${mLabel} ${selectedMonthYear})`,
-            value: formatCurrency(449000),
-            icon: IndianRupee,
-            delta: "+21.2%",
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
-            periodText: `in ${mLabel}`,
-          },
-          {
-            label: `Orders (${mLabel})`,
-            value: "560",
-            icon: ShoppingCart,
-            delta: "+17.6%",
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            periodText: `in ${mLabel}`,
-          },
-          {
-            label: "Avg Order Value",
-            value: formatCurrency(801),
-            icon: Package,
-            delta: "+6.4%",
-            color: "text-purple-500",
-            bg: "bg-purple-500/10",
-            periodText: `in ${mLabel}`,
-          },
-          {
-            label: "Store Conversion Rate",
-            value: "3.98%",
-            icon: TrendingUp,
-            delta: "+1.2%",
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
-            periodText: `in ${mLabel}`,
-          },
-        ];
-      }
-
-      case "custom_year":
-        return [
-          {
-            label: `Revenue (${selectedYear} Annual)`,
-            value: formatCurrency(6370000),
-            icon: IndianRupee,
-            delta: "+29.5%",
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
-            periodText: `annual ${selectedYear}`,
-          },
-          {
-            label: `Total Orders (${selectedYear})`,
-            value: "7,940",
-            icon: ShoppingCart,
-            delta: "+26.1%",
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            periodText: `annual ${selectedYear}`,
-          },
-          {
-            label: "Avg Order Value",
-            value: formatCurrency(802),
-            icon: Package,
-            delta: "+7.8%",
-            color: "text-purple-500",
-            bg: "bg-purple-500/10",
-            periodText: `annual ${selectedYear}`,
-          },
-          {
-            label: "Store Conversion Rate",
-            value: "4.15%",
-            icon: TrendingUp,
-            delta: "+1.5%",
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
-            periodText: `annual ${selectedYear}`,
-          },
-        ];
-
-      case "week":
-      default:
-        return [
-          {
-            label: "Total Revenue (This Week)",
-            value: formatCurrency(152000),
-            icon: IndianRupee,
-            delta: "+14.2%",
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
-            periodText: "vs last 7 days",
-          },
-          {
-            label: "Total Orders (This Week)",
-            value: "158",
-            icon: ShoppingCart,
-            delta: "+8.4%",
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            periodText: "vs last 7 days",
-          },
-          {
-            label: "Avg Order Value (AOV)",
-            value: formatCurrency(962),
-            icon: Package,
-            delta: "+4.2%",
-            color: "text-purple-500",
-            bg: "bg-purple-500/10",
-            periodText: "vs last 7 days",
-          },
-          {
-            label: "Store Conversion Rate",
-            value: "3.84%",
-            icon: TrendingUp,
-            delta: "+0.6%",
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
-            periodText: "vs last 7 days",
-          },
-        ];
+    if (timeline === "today") {
+      filtered = currentOrders.filter((o) => o.date === todayStr);
+      // Group into hourly buckets — since we only have date-level granularity, put all into 12:00 bucket
+      const buckets: Record<string, number> = { "00:00": 0, "04:00": 0, "08:00": 0, "12:00": 0, "16:00": 0, "20:00": 0 };
+      filtered.forEach((o) => { buckets["12:00"] += o.total; });
+      return Object.entries(buckets).map(([day, revenue]) => ({ day, revenue }));
     }
-  }, [timeline, startDate, endDate, selectedMonth, selectedMonthYear, selectedYear]);
 
-  const stats = useMemo(() => {
-    const revenue = currentOrders.reduce((total, order) => total + order.total, 0);
-    const completed = currentOrders.filter((order) => order.status === "delivered").length;
+    if (timeline === "week") {
+      const days: string[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      const buckets: Record<string, number> = Object.fromEntries(days.map((d) => [d, 0]));
+      const now = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now); d.setDate(d.getDate() - i);
+        const iso = d.toISOString().slice(0, 10);
+        const label = days[d.getDay() === 0 ? 6 : d.getDay() - 1];
+        currentOrders.filter((o) => o.date === iso).forEach((o) => { buckets[label] = (buckets[label] || 0) + o.total; });
+      }
+      return days.map((d) => ({ day: d, revenue: buckets[d] }));
+    }
+
+    if (timeline === "month") {
+      const now = new Date();
+      const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      filtered = currentOrders.filter((o) => o.date?.startsWith(ym));
+      const buckets: Record<string, number> = { "Week 1": 0, "Week 2": 0, "Week 3": 0, "Week 4": 0 };
+      filtered.forEach((o) => {
+        const day = parseInt(o.date?.slice(8, 10) || "1", 10);
+        const week = day <= 7 ? "Week 1" : day <= 14 ? "Week 2" : day <= 21 ? "Week 3" : "Week 4";
+        buckets[week] += o.total;
+      });
+      return Object.entries(buckets).map(([day, revenue]) => ({ day, revenue }));
+    }
+
+    if (timeline === "custom_month") {
+      const ym = `${selectedMonthYear}-${selectedMonth}`;
+      filtered = currentOrders.filter((o) => o.date?.startsWith(ym));
+      const buckets: Record<string, number> = { "Week 1": 0, "Week 2": 0, "Week 3": 0, "Week 4": 0 };
+      filtered.forEach((o) => {
+        const day = parseInt(o.date?.slice(8, 10) || "1", 10);
+        const week = day <= 7 ? "Week 1" : day <= 14 ? "Week 2" : day <= 21 ? "Week 3" : "Week 4";
+        buckets[week] += o.total;
+      });
+      return Object.entries(buckets).map(([day, revenue]) => ({ day, revenue }));
+    }
+
+    if (timeline === "year") {
+      const year = new Date().getFullYear().toString();
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const buckets: Record<string, number> = Object.fromEntries(months.map((m) => [m, 0]));
+      currentOrders.filter((o) => o.date?.startsWith(year)).forEach((o) => {
+        const monthIdx = parseInt(o.date?.slice(5, 7) || "1", 10) - 1;
+        buckets[months[monthIdx]] = (buckets[months[monthIdx]] || 0) + o.total;
+      });
+      return months.map((m) => ({ day: m, revenue: buckets[m] }));
+    }
+
+    if (timeline === "custom_year") {
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const buckets: Record<string, number> = Object.fromEntries(months.map((m) => [m, 0]));
+      currentOrders.filter((o) => o.date?.startsWith(selectedYear)).forEach((o) => {
+        const monthIdx = parseInt(o.date?.slice(5, 7) || "1", 10) - 1;
+        buckets[months[monthIdx]] = (buckets[months[monthIdx]] || 0) + o.total;
+      });
+      return months.map((m) => ({ day: m, revenue: buckets[m] }));
+    }
+
+    if (timeline === "custom_date") {
+      filtered = currentOrders.filter((o) => o.date >= startDate && o.date <= endDate);
+      const buckets = new Map<string, number>();
+      filtered.forEach((o) => { buckets.set(o.date, (buckets.get(o.date) || 0) + o.total); });
+      return Array.from(buckets, ([day, revenue]) => ({ day, revenue })).sort((a, b) => a.day.localeCompare(b.day));
+    }
+
+    return [];
+  }, [currentOrders, timeline, todayStr, startDate, endDate, selectedMonth, selectedMonthYear, selectedYear]);
+
+  // Real KPI stats computed from filtered orders based on active timeline
+  const kpiStats = useMemo(() => {
+    let filtered = currentOrders;
+
+    if (timeline === "today") {
+      filtered = currentOrders.filter((o) => o.date === todayStr);
+    } else if (timeline === "week") {
+      const now = new Date();
+      const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 6);
+      const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+      filtered = currentOrders.filter((o) => o.date >= weekAgoStr && o.date <= todayStr);
+    } else if (timeline === "month") {
+      const now = new Date();
+      const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      filtered = currentOrders.filter((o) => o.date?.startsWith(ym));
+    } else if (timeline === "year") {
+      const year = new Date().getFullYear().toString();
+      filtered = currentOrders.filter((o) => o.date?.startsWith(year));
+    } else if (timeline === "custom_date") {
+      filtered = currentOrders.filter((o) => o.date >= startDate && o.date <= endDate);
+    } else if (timeline === "custom_month") {
+      const ym = `${selectedMonthYear}-${selectedMonth}`;
+      filtered = currentOrders.filter((o) => o.date?.startsWith(ym));
+    } else if (timeline === "custom_year") {
+      filtered = currentOrders.filter((o) => o.date?.startsWith(selectedYear));
+    }
+
+    const revenue = filtered.reduce((sum, o) => sum + o.total, 0);
+    const orderCount = filtered.length;
+    const aov = orderCount > 0 ? revenue / orderCount : 0;
+    const delivered = filtered.filter((o) => o.status === "delivered").length;
+
+    const periodLabels: Record<string, string> = {
+      today: "Today",
+      week: "This Week",
+      month: "This Month",
+      year: "This Year",
+      custom_date: `${startDate} – ${endDate}`,
+      custom_month: `${monthOptions.find((m) => m.value === selectedMonth)?.label} ${selectedMonthYear}`,
+      custom_year: `${selectedYear} Annual`,
+    };
+    const period = periodLabels[timeline] || "Selected Period";
+
     return [
-      { label: "Total Revenue", value: formatCurrency(revenue), icon: IndianRupee, delta: "", color: "text-emerald-500", bg: "bg-emerald-500/10", periodText: "from database orders" },
-      { label: "Total Orders", value: String(currentOrders.length), icon: ShoppingCart, delta: "", color: "text-blue-500", bg: "bg-blue-500/10", periodText: "from database orders" },
-      { label: "Avg Order Value (AOV)", value: formatCurrency(currentOrders.length ? revenue / currentOrders.length : 0), icon: Package, delta: "", color: "text-purple-500", bg: "bg-purple-500/10", periodText: "from database orders" },
-      { label: "Delivered Orders", value: String(completed), icon: TrendingUp, delta: "", color: "text-amber-500", bg: "bg-amber-500/10", periodText: "from database orders" },
+      {
+        label: `Total Revenue (${period})`,
+        value: formatCurrency(revenue),
+        icon: IndianRupee,
+        delta: "",
+        color: "text-emerald-500",
+        bg: "bg-emerald-500/10",
+        periodText: `${orderCount} orders`,
+      },
+      {
+        label: `Total Orders (${period})`,
+        value: orderCount.toLocaleString("en-IN"),
+        icon: ShoppingCart,
+        delta: "",
+        color: "text-blue-500",
+        bg: "bg-blue-500/10",
+        periodText: "from backend",
+      },
+      {
+        label: "Avg Order Value (AOV)",
+        value: formatCurrency(aov),
+        icon: Package,
+        delta: "",
+        color: "text-purple-500",
+        bg: "bg-purple-500/10",
+        periodText: "per order",
+      },
+      {
+        label: "Delivered Orders",
+        value: delivered.toLocaleString("en-IN"),
+        icon: TrendingUp,
+        delta: "",
+        color: "text-amber-500",
+        bg: "bg-amber-500/10",
+        periodText: `of ${orderCount} total`,
+      },
     ];
-  }, [currentOrders]);
+  }, [currentOrders, timeline, todayStr, startDate, endDate, selectedMonth, selectedMonthYear, selectedYear]);
 
-  // Filtered Category Stats list
+  // Filtered Category Stats list with real revenue share calculation
   const filteredCategoryStats = useMemo(() => {
-    const categories = Array.from(new Set(products.map((product) => product.category).filter(Boolean))).map((category) => {
-      const categoryProducts = products.filter((product) => product.category === category);
-      const productIds = new Set(categoryProducts.map((product) => product.id));
-      const categoryLines = currentOrders.flatMap((order) => Array.isArray(order.items) ? order.items.filter((item) => productIds.has(item.id)) : []);
+    const allCategories = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+
+    // First pass: compute revenue per category
+    const categoryData = allCategories.map((category) => {
+      const categoryProducts = products.filter((p) => p.category === category);
+      const productIds = new Set(categoryProducts.map((p) => p.id));
+      const categoryLines = currentOrders.flatMap((order) =>
+        Array.isArray(order.items) ? order.items.filter((item) => productIds.has(item.id)) : []
+      );
       const categoryRevenue = categoryLines.reduce((sum, item) => sum + item.price * item.qty, 0);
-      const metrics = { revenue: categoryRevenue, orders: categoryLines.reduce((sum, item) => sum + item.qty, 0), delta: "", share: 0 };
-      return { id: category, name: category, categoryKey: category, icon: Layers, color: "text-indigo-500", bg: "bg-indigo-500/10", border: "border-indigo-500/20", topProduct: categoryProducts[0]?.name || "—", activeProducts: categoryProducts.filter((product) => product.status === "active").length, metrics: { today: metrics, week: metrics, month: metrics, year: metrics } };
+      const categoryOrders = categoryLines.reduce((sum, item) => sum + item.qty, 0);
+      return {
+        id: category,
+        name: category,
+        categoryKey: category,
+        icon: Layers,
+        color: "text-indigo-500",
+        bg: "bg-indigo-500/10",
+        border: "border-indigo-500/20",
+        topProduct: categoryProducts[0]?.name || "—",
+        activeProducts: categoryProducts.filter((p) => p.status === "active").length,
+        revenue: categoryRevenue,
+        orders: categoryOrders,
+      };
     });
+
+    // Compute total revenue for share calculation
+    const totalRevenue = categoryData.reduce((sum, c) => sum + c.revenue, 0);
+
+    const categories = categoryData.map((c) => {
+      const share = totalRevenue > 0 ? Math.round((c.revenue / totalRevenue) * 100) : 0;
+      const metrics = { revenue: c.revenue, orders: c.orders, delta: "", share };
+      return {
+        id: c.id,
+        name: c.name,
+        categoryKey: c.categoryKey,
+        icon: c.icon,
+        color: c.color,
+        bg: c.bg,
+        border: c.border,
+        topProduct: c.topProduct,
+        activeProducts: c.activeProducts,
+        metrics: { today: metrics, week: metrics, month: metrics, year: metrics },
+      };
+    });
+
     return categories.filter((cat) => {
       const matchQ =
         !categoryQuery ||
@@ -670,21 +420,9 @@ export default function AdminDashboardPage() {
     });
   }, [products, currentOrders, categoryQuery, selectedCategoryFilter]);
 
-  // Helper to extract category metric based on active timeline filter
-  const getCategoryMetric = (cat: typeof baseCategoryStatsData[0]) => {
-    if (timeline === "today" || timeline === "week" || timeline === "month" || timeline === "year") {
-      return cat.metrics[timeline];
-    }
-    if (timeline === "custom_date") {
-      return { revenue: Math.round(cat.metrics.week.revenue * 1.2), orders: Math.round(cat.metrics.week.orders * 1.2), delta: "+15.2%", share: cat.metrics.week.share };
-    }
-    if (timeline === "custom_month") {
-      return { revenue: Math.round(cat.metrics.month.revenue * 0.95), orders: Math.round(cat.metrics.month.orders * 0.95), delta: "+17.8%", share: cat.metrics.month.share };
-    }
-    if (timeline === "custom_year") {
-      return { revenue: Math.round(cat.metrics.year.revenue * 0.92), orders: Math.round(cat.metrics.year.orders * 0.92), delta: "+24.6%", share: cat.metrics.year.share };
-    }
-    return cat.metrics.week;
+  // Helper to extract category metric — all timeline keys share the same real computed value
+  const getCategoryMetric = (cat: (typeof filteredCategoryStats)[0]) => {
+    return cat.metrics.today;
   };
 
   // Helper for Order Status Icon
@@ -917,7 +655,7 @@ export default function AdminDashboardPage() {
 
       {/* KPI Performance Cards Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => (
+        {kpiStats.map((s) => (
           <Card key={s.label} className="border shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -930,7 +668,7 @@ export default function AdminDashboardPage() {
             <CardContent>
               <div className="text-2xl font-extrabold text-foreground">{s.value}</div>
               <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
-                <ArrowUpRight className="h-3.5 w-3.5" /> {s.delta}{" "}
+                <ArrowUpRight className="h-3.5 w-3.5" />{" "}
                 <span className="text-muted-foreground font-normal">{s.periodText}</span>
               </div>
             </CardContent>
@@ -1040,7 +778,7 @@ export default function AdminDashboardPage() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-muted-foreground font-medium">Market Share Ratio</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">{m.delta} ↑</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">{m.share}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                       <div
@@ -1079,7 +817,7 @@ export default function AdminDashboardPage() {
                 </CardDescription>
               </div>
               <Badge variant="outline" className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
-                +14.2% ↑
+                {kpiStats[0]?.value}
               </Badge>
             </div>
           </CardHeader>
@@ -1120,9 +858,9 @@ export default function AdminDashboardPage() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={filteredCategoryStats.map((c) => ({
-                    name: c.categoryKey,
-                    sales: c.metrics.week.revenue,
-                  }))}
+                  name: c.categoryKey,
+                  sales: c.metrics.today.revenue,
+                }))}
                 layout="vertical"
               >
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
