@@ -214,7 +214,7 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative flex h-[300px] sm:h-[320px] w-full shrink-0 items-center overflow-hidden text-white transition-colors duration-700"
+      className="relative flex h-[520px] w-full shrink-0 items-center overflow-hidden text-white transition-colors duration-700 sm:h-[600px] lg:h-[640px]"
       style={{ backgroundColor: currentBanner.bgColor || "#090d16" }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}

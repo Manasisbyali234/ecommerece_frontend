@@ -655,7 +655,7 @@ export const MODULE_DEFINITIONS = [
 export function createFullPermissions(): ModulePermissions {
   const perms: ModulePermissions = {};
   MODULE_DEFINITIONS.forEach((m) => {
-    perms[m.key] = { create: true, read: true, update: true, delete: true };
+    perms[m.key] = { create: m.key !== "dashboard", read: true, update: m.key !== "dashboard", delete: m.key !== "dashboard" };
   });
   return perms;
 }

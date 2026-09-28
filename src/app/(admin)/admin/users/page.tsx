@@ -106,6 +106,7 @@ export default function AdminUsersPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const isStrongPassword = (value: string) => value.length >= 12 && /[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value) && /[^A-Za-z0-9]/.test(value) && !/(password|123456|qwerty|admin)/i.test(value);
 
   // Role Edit/Create Modal State
   const [roleModalOpen, setRoleModalOpen] = useState(false);
@@ -137,7 +138,9 @@ export default function AdminUsersPage() {
       store.replaceRoles(loadedRoles);
       store.replaceAdminUsers(userResult.items.map((user) => {
         const roleRef = user.roleRef as Record<string, unknown> | null;
-        return { id: String(user.id), name: String(user.fullName || ""), email: String(user.email || ""), roleId: String(roleRef?.id || user.role || fallbackRole), status: user.status === "disabled" ? "inactive" : "active", lastLogin: String(user.updatedAt || "Never") };
+        const lastLoginAt = user.lastLoginAt;
+        const lastLogin = lastLoginAt ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(String(lastLoginAt))) : "Never";
+        return { id: String(user.id), name: String(user.fullName || ""), email: String(user.email || ""), roleId: String(roleRef?.id || user.role || fallbackRole), status: user.status === "disabled" ? "inactive" : "active", lastLogin };
       }));
     });
 
@@ -216,12 +219,11 @@ export default function AdminUsersPage() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userDraft.email)) errors.email = "Enter a valid email address";
     if (!editingUserId) {
       if (!password) errors.password = "Password is required";
-      else if (password.length < 8) errors.password = "Minimum 8 characters required";
-      else if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) errors.password = "Must contain at least one uppercase letter and one number";
+      else if (!isStrongPassword(password)) errors.password = "Use 12+ characters with upper/lowercase, number, and symbol; avoid common passwords";
       if (!confirmPassword) errors.confirmPassword = "Please confirm your password";
       else if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
     } else if (password) {
-      if (password.length < 8) errors.password = "Minimum 8 characters required";
+      if (!isStrongPassword(password)) errors.password = "Use 12+ characters with upper/lowercase, number, and symbol; avoid common passwords";
       else if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
     }
     if (!userDraft.roleId) errors.roleId = "Permission role is required";
@@ -232,7 +234,7 @@ export default function AdminUsersPage() {
 
     try {
     if (editingUserId) {
-      const patch: Record<string, unknown> = { fullName: userDraft.name, status: userDraft.status === "active" ? "active" : "disabled", roleId: userDraft.roleId };
+      const patch: Record<string, unknown> = { fullName: userDraft.name, status: userDraft.status === "active" ? "active" : "disabled", roleId: userDraft.roleId, twoFactorEnabled: enforce2FA };
       if (password) {
         if (password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
         if (password !== confirmPassword) { toast.error("Passwords do not match"); return; }
@@ -243,7 +245,7 @@ export default function AdminUsersPage() {
       store.updateAdminUser(editingUserId, { ...userDraft, roleId: String(result.user.roleRef ? (result.user.roleRef as Record<string,unknown>).id || userDraft.roleId : userDraft.roleId) });
       toast.success(`User "${userDraft.name}" updated successfully!`);
     } else {
-      const result = await api<{ user: Record<string, unknown> }>("/admin/users", { method: "POST", body: JSON.stringify({ fullName: userDraft.name, email: userDraft.email, password, roleId: userDraft.roleId, role: "admin" }) });
+      const result = await api<{ user: Record<string, unknown> }>("/admin/users", { method: "POST", body: JSON.stringify({ fullName: userDraft.name, email: userDraft.email, password, roleId: userDraft.roleId, role: "admin", twoFactorEnabled: enforce2FA }) });
       const newUser: Omit<AdminUser, "id"> = { ...userDraft, id: String(result.user.id), roleId: String((result.user.roleRef as Record<string,unknown>)?.id || userDraft.roleId) } as unknown as Omit<AdminUser, "id">;
       store.addAdminUser({ ...userDraft, lastLogin: "Never" });
       toast.success(`User "${userDraft.name}" created successfully!`, {
@@ -329,6 +331,7 @@ export default function AdminUsersPage() {
   };
 
   const toggleModuleRowAll = (moduleKey: string) => {
+    if (moduleKey === "dashboard") return;
     setRolePerms((prev) => {
       const current = prev[moduleKey];
       const isAllChecked =
@@ -351,28 +354,20 @@ export default function AdminUsersPage() {
     const updated: ModulePermissions = {};
     MODULE_DEFINITIONS.forEach((m) => {
       updated[m.key] = {
-        create: targetState,
+        create: m.key === "dashboard" ? false : targetState,
         read: targetState,
-        update: targetState,
-        delete: targetState,
+        update: m.key === "dashboard" ? false : targetState,
+        delete: m.key === "dashboard" ? false : targetState,
       };
     });
     setRolePerms(updated);
   };
 
   // Quick Preset Role Application
-  const applyPresetRole = (presetType: "superadmin" | "store_manager" | "content_editor" | "support" | "clear") => {
+  const applyPresetRole = (presetType: "store_manager" | "content_editor" | "support" | "clear") => {
     if (presetType === "clear") {
       setAllPermissionsState(false);
       toast.info("Cleared all CRUD permissions");
-      return;
-    }
-
-    if (presetType === "superadmin") {
-      setAllPermissionsState(true);
-      setRoleName("Super Admin");
-      setRoleDesc("Full unrestricted administrative access across all system modules.");
-      toast.success("Applied Super Admin Preset (Full Access)");
       return;
     }
 
@@ -402,7 +397,7 @@ export default function AdminUsersPage() {
         }
       }
 
-      updated[m.key] = { create, read, update, delete: del };
+      updated[m.key] = { create: m.key === "dashboard" ? false : create, read, update: m.key === "dashboard" ? false : update, delete: m.key === "dashboard" ? false : del };
     });
 
     setRolePerms(updated);
@@ -1043,7 +1038,7 @@ export default function AdminUsersPage() {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder={editingUserId ? "Leave blank to keep current password" : "Min 8 chars, 1 uppercase, 1 number"}
+                    placeholder={editingUserId ? "Leave blank to keep current password" : "12+ chars: upper, lower, number, symbol"}
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: "" })); }}
                     className={`text-xs pr-9 ${fieldErrors.password ? "border-rose-500 focus-visible:ring-rose-500" : ""}`}
@@ -1053,6 +1048,7 @@ export default function AdminUsersPage() {
                   </button>
                 </div>
                 {fieldErrors.password && <p className="text-[11px] text-rose-500 font-semibold">{fieldErrors.password}</p>}
+                {!editingUserId && !fieldErrors.password && <p className="text-[10px] text-muted-foreground">Use 12+ characters with uppercase, lowercase, number and symbol.</p>}
               </div>
 
               <div className="space-y-1">
@@ -1230,16 +1226,6 @@ export default function AdminUsersPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => applyPresetRole("superadmin")}
-                  className="text-xs font-bold h-8 gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
-                >
-                  <Crown className="h-3.5 w-3.5 text-amber-500" /> Super Admin (Full)
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={() => applyPresetRole("store_manager")}
                   className="text-xs font-bold h-8 gap-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
                 >
@@ -1302,6 +1288,7 @@ export default function AdminUsersPage() {
 
                   <div className="divide-y text-xs bg-card">
                     {modules.map((m) => {
+                      const isReadOnly = m.key === "dashboard";
                       const perm = rolePerms[m.key] || {
                         create: false,
                         read: false,
@@ -1327,7 +1314,7 @@ export default function AdminUsersPage() {
                           {/* 4 CRUD Checkboxes + Select All Pill */}
                           <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                             {/* CREATE CHECKBOX */}
-                            <label className="flex items-center gap-1.5 cursor-pointer font-bold px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all">
+                            {!isReadOnly && <label className="flex items-center gap-1.5 cursor-pointer font-bold px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all">
                               <Checkbox
                                 checked={perm.create}
                                 onCheckedChange={() => toggleCrudPermission(m.key, "create")}
@@ -1335,7 +1322,7 @@ export default function AdminUsersPage() {
                               <span className="text-[11px] text-emerald-600 dark:text-emerald-400">
                                 Create
                               </span>
-                            </label>
+                            </label>}
 
                             {/* READ CHECKBOX */}
                             <label className="flex items-center gap-1.5 cursor-pointer font-bold px-2 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 transition-all">
@@ -1349,7 +1336,7 @@ export default function AdminUsersPage() {
                             </label>
 
                             {/* UPDATE CHECKBOX */}
-                            <label className="flex items-center gap-1.5 cursor-pointer font-bold px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-all">
+                            {!isReadOnly && <label className="flex items-center gap-1.5 cursor-pointer font-bold px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-all">
                               <Checkbox
                                 checked={perm.update}
                                 onCheckedChange={() => toggleCrudPermission(m.key, "update")}
@@ -1357,10 +1344,10 @@ export default function AdminUsersPage() {
                               <span className="text-[11px] text-amber-600 dark:text-amber-400">
                                 Update
                               </span>
-                            </label>
+                            </label>}
 
                             {/* DELETE CHECKBOX */}
-                            <label className="flex items-center gap-1.5 cursor-pointer font-bold px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition-all">
+                            {!isReadOnly && <label className="flex items-center gap-1.5 cursor-pointer font-bold px-2 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition-all">
                               <Checkbox
                                 checked={perm.delete}
                                 onCheckedChange={() => toggleCrudPermission(m.key, "delete")}
@@ -1368,10 +1355,10 @@ export default function AdminUsersPage() {
                               <span className="text-[11px] text-rose-600 dark:text-rose-400">
                                 Delete
                               </span>
-                            </label>
+                            </label>}
 
                             {/* SELECT ALL ROW PILL */}
-                            <Button
+                            {!isReadOnly && <Button
                               type="button"
                               variant={isAllRowChecked ? "default" : "outline"}
                               size="sm"
@@ -1383,7 +1370,7 @@ export default function AdminUsersPage() {
                               }`}
                             >
                               <CheckSquare className="h-3 w-3" /> {isAllRowChecked ? "Full CRUD" : "Select All"}
-                            </Button>
+                            </Button>}
                           </div>
                         </div>
                       );

@@ -34,6 +34,7 @@ import {
   CircleDot,
   Tag,
   Award,
+  LogOut,
 } from "lucide-react";
 
 import {
@@ -57,7 +58,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { hasPermission, getAdminRole, subscribeAdminRole } from "@/lib/api";
+import { hasPermission, getAdminRole, subscribeAdminRole, clearAccessToken } from "@/lib/api";
 import { useStore } from "@/lib/store";
 
 export function AppSidebar() {
@@ -534,7 +535,7 @@ export function AppSidebar() {
                             </Collapsible>
                           )}
 
-                          {matches("Page Builder") && (
+                          {matches("Page Builder") && hasPermission("website_builder:read") && (
                             <SidebarMenuSubItem>
                               <SidebarMenuSubButton
                                 asChild
@@ -813,6 +814,18 @@ export function AppSidebar() {
       {/* Sidebar Footer: Storefront Link & Staff Profile */}
       <SidebarFooter className="p-2 border-t border-sidebar-border/60 bg-sidebar/50">
         <SidebarMenu>
+          {staffRole && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Log out"
+                onClick={() => { clearAccessToken(); window.location.assign("/admin/staff/login"); }}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="text-xs font-semibold">Log out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {!staffRole || staffRole.isSuperAdmin ? (
             <SidebarMenuItem>
               <SidebarMenuButton

@@ -92,7 +92,7 @@ import {
 import { formatCurrency, type Order, type Product } from "@/lib/mock-data";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, hasPermission } from "@/lib/api";
 
 type TimelineFilter = "today" | "week" | "month" | "year" | "custom_date" | "custom_month" | "custom_year";
 
@@ -457,11 +457,11 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <Button asChild size="sm" className="text-xs font-bold gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs self-start lg:self-auto">
+          {hasPermission("website_builder:read") && <Button asChild size="sm" className="text-xs font-bold gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs self-start lg:self-auto">
             <Link href="/admin/builder">
               <Layout className="h-3.5 w-3.5" /> Page Builder
             </Link>
-          </Button>
+          </Button>}
         </div>
 
         {/* TIMELINE & CUSTOM FILTER CONTROL BAR */}

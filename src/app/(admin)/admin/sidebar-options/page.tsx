@@ -437,7 +437,7 @@ export default function AdminSidebarOptionsPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="so-label" className="text-xs font-semibold">Link Label Title</Label>
+              <Label htmlFor="so-label" className="text-xs font-semibold">Link Label Title <span className="text-red-500">*</span></Label>
               <Input
                 id="so-label"
                 placeholder="e.g. Today's Deals"
@@ -448,7 +448,7 @@ export default function AdminSidebarOptionsPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="so-url" className="text-xs font-semibold">Destination URL / Link Path</Label>
+              <Label htmlFor="so-url" className="text-xs font-semibold">Destination URL / Link Path <span className="text-red-500">*</span></Label>
               <Input
                 id="so-url"
                 placeholder="e.g. /products?category=All"

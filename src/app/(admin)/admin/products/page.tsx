@@ -85,7 +85,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { formatCurrency, defaultAdditionalInfo, defaultAboutSections, type Product, type AboutProductSection, type AdditionalInfoSection } from "@/lib/mock-data";
-import { api, uploadImage } from "@/lib/api";
+import { api, uploadImage, hasPermission } from "@/lib/api";
 import { useStore, type NavCategoryGroup } from "@/lib/store";
 import { useBrands } from "@/hooks/use-brands";
 
@@ -179,6 +179,9 @@ function calculateDiscountPercent(cost: number, price: number) {
 }
 
 export default function ProductsPage() {
+  const canCreate = hasPermission("products:create");
+  const canUpdate = hasPermission("products:update");
+  const canDelete = hasPermission("products:delete");
   const navCategories = useStore((s) => s.navCategories);
   const managedCategories = useStore((s) => s.categories);
   const managedSubCategories = useStore((s) => s.subCategories);
@@ -1034,13 +1037,13 @@ export default function ProductsPage() {
           </p>
         </div>
 
-        <Button
+        {canCreate && <Button
           onClick={handleOpenNewModal}
           size="sm"
           className="text-xs font-bold gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20"
         >
           <Plus className="h-4 w-4" /> Add New Product
-        </Button>
+        </Button>}
       </div>
 
       {/* Control Bar: Search + Category + Tags + Status + View Toggle */}
@@ -1212,25 +1215,25 @@ export default function ProductsPage() {
                   <span className="text-[9px] font-bold text-muted-foreground select-none uppercase tracking-wider">
                     Status: {p.status === "active" ? "Active" : "Inactive"}
                   </span>
-                  <Switch
+                  {canUpdate && <Switch
                     checked={p.status === "active"}
                     onCheckedChange={() => toggleStatus(p.id)}
                     className="scale-75 origin-right"
                     title={p.status === "active" ? "Deactivate Product" : "Activate Product"}
-                  />
+                  />}
                 </div>
 
                 <div className="flex items-center justify-between w-full gap-1">
-                  <Button
+                  {canUpdate && <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleOpenEditModal(p)}
                     className="h-6 text-[10px] font-bold gap-1 flex-1 px-1.5"
                   >
                     <Edit3 className="h-3 w-3 text-primary" /> Edit
-                  </Button>
+                  </Button>}
 
-                  <Button
+                  {canDelete && <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => window.open(`/products/${p.id}`, "_blank")}
@@ -1238,7 +1241,7 @@ export default function ProductsPage() {
                     title="View Details"
                   >
                     <Eye className="h-3 w-3" />
-                  </Button>
+                  </Button>}
 
                   <Button
                     variant="ghost"
@@ -1290,12 +1293,12 @@ export default function ProductsPage() {
                   <TableCell className="text-xs font-bold">{p.stock} units</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Switch
+                      {canUpdate && <Switch
                         checked={p.status === "active"}
                         onCheckedChange={() => toggleStatus(p.id)}
                         className="scale-75"
                         title={p.status === "active" ? "Deactivate" : "Activate"}
-                      />
+                      />}
                       <Badge variant="outline" className={`text-[10px] capitalize font-extrabold ${statusColor[p.status]}`}>
                         {p.status}
                       </Badge>
@@ -1312,12 +1315,12 @@ export default function ProductsPage() {
                       >
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenEditModal(p)}>
+                      {canUpdate && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenEditModal(p)}>
                         <Edit3 className="h-3.5 w-3.5 text-primary" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500" onClick={() => handleDeleteProduct(p.id)}>
+                      </Button>}
+                      {canDelete && <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500" onClick={() => handleDeleteProduct(p.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      </Button>}
                     </div>
                   </TableCell>
                 </TableRow>

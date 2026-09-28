@@ -55,7 +55,13 @@ export default function AdminLoginPage() {
     setCaptchaError("");
     setLoading(true);
     try {
-      const result = await authApi.adminLogin(email, password);
+      let result = await authApi.adminLogin(email, password);
+      if (result.twoFactorRequired) {
+        const code = window.prompt("Enter the six-digit verification code sent to your email.");
+        if (!code || !result.challengeId) throw new Error("Two-factor verification is required.");
+        result = await authApi.verifyAdmin2FA(result.challengeId, code);
+      }
+      if (!result.token || !result.user) throw new Error("Unable to complete sign-in.");
       if (result.user.role !== "admin" && result.user.role !== "support") {
         throw new Error("This account does not have admin access");
       }

@@ -37,7 +37,13 @@ export default function StaffLoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await authApi.adminLogin(email, password);
+      let result = await authApi.adminLogin(email, password);
+      if (result.twoFactorRequired) {
+        const code = window.prompt("Enter the six-digit verification code sent to your work email.");
+        if (!code || !result.challengeId) throw new Error("Two-factor verification is required.");
+        result = await authApi.verifyAdmin2FA(result.challengeId, code);
+      }
+      if (!result.token || !result.user) throw new Error("Unable to complete sign-in.");
 
       if (result.user.role !== "admin" && result.user.role !== "support") {
         throw new Error("This account does not have staff access");
@@ -132,6 +138,7 @@ export default function StaffLoginPage() {
             </form>
 
             <p className="mt-4 text-center text-[11px] text-muted-foreground">
+              <button type="button" onClick={async () => { if (!email) return toast.error("Enter your work email first."); try { await authApi.forgotAdminPassword(email); toast.success("If the account exists, a reset link was sent."); } catch (error) { toast.error(error instanceof Error ? error.message : "Unable to send reset link"); } }} className="mr-3 font-semibold text-primary underline underline-offset-4">Forgot password?</button>
               Super Admin?{" "}
               <a href="/admin/login" className="font-semibold text-primary underline underline-offset-4">
                 Use the main admin login
